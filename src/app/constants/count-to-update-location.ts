@@ -1,0 +1,1 @@
+export const COUNT_TO_UPDATE_LOCATION = 4;

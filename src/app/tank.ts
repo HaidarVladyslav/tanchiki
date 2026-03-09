@@ -1,0 +1,56 @@
+import { Container, Graphics } from 'pixi.js';
+import { TANK_SIZE_CELLS } from './constants/tank-size-cells';
+import { Direction } from './types/direction';
+
+export class Tank {
+  public container: Container;
+  public front: Graphics;
+
+  private x: number = 0;
+  private y: number = 0;
+  private tankSize: number;
+
+  constructor(cellSize: number) {
+    this.container = new Container();
+    this.tankSize = cellSize * TANK_SIZE_CELLS;
+    const rect = new Graphics().rect(0, 0, this.tankSize, this.tankSize).fill({ color: 0x00ff00 });
+    this.front = new Graphics().rect(0, 0, rect.width / 6, rect.width / 6).fill({ color: 'red' });
+
+    rect.addChild(this.front);
+    this.container.addChild(rect);
+
+    this.rotateFront('right');
+  }
+
+  public setX(value: number): void {
+    this.x = value;
+    this.container.x = value;
+  }
+
+  public setY(value: number): void {
+    this.y = value;
+    this.container.y = value;
+  }
+
+  public rotateFront(direction: Direction): void {
+    if (direction === 'top') {
+      this.front.x = this.tankSize / 3 + this.front.width / 2;
+      this.front.y = 0;
+    }
+
+    if (direction === 'bottom') {
+      this.front.x = this.tankSize / 3 + this.front.width / 2;
+      this.front.y = this.tankSize - this.front.height;
+    }
+
+    if (direction === 'left') {
+      this.front.x = 0;
+      this.front.y = this.tankSize / 3 + this.front.width / 2;
+    }
+
+    if (direction === 'right') {
+      this.front.x = this.tankSize - this.front.width;
+      this.front.y = this.tankSize / 3 + this.front.width / 2;
+    }
+  }
+}
