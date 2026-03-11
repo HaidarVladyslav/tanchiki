@@ -1,4 +1,4 @@
-import { Container, Graphics } from 'pixi.js';
+import { ColorSource, Container, Graphics } from 'pixi.js';
 import { TANK_SIZE_CELLS } from './constants/tank-size-cells';
 import { Direction } from './types/direction';
 
@@ -10,12 +10,12 @@ export class Tank {
   private y: number = 0;
   private tankSize: number;
 
-  public direction: Direction = 'right';
+  public direction: Direction = 'top';
 
-  constructor(cellSize: number) {
+  constructor(cellSize: number, color: ColorSource = 0x00ff00) {
     this.container = new Container();
     this.tankSize = cellSize * TANK_SIZE_CELLS;
-    const rect = new Graphics().rect(0, 0, this.tankSize, this.tankSize).fill({ color: 0x00ff00 });
+    const rect = new Graphics().rect(0, 0, this.tankSize, this.tankSize).fill({ color });
     this.front = new Graphics().rect(0, 0, rect.width / 6, rect.width / 6).fill({ color: 'red' });
 
     rect.addChild(this.front);

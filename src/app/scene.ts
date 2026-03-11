@@ -11,9 +11,8 @@ export class Scene {
   public cellsAmount: number;
 
   constructor(x: number, y: number, wwidth: number, height: number) {
-    const gridParams = buildGrid(new Graphics());
-    const gridPixel = gridParams.graphics
-    .stroke({
+    const gridParams = buildGrid(new Graphics(), wwidth, height);
+    const gridPixel = gridParams.graphics.stroke({
       color: 0xffffff,
       pixelLine: true,
       width: 1,

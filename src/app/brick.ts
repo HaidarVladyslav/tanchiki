@@ -7,7 +7,7 @@ export class Brick {
 
   constructor(cellSize: number) {
     const rect = new Graphics()
-      .rect(0, 0, cellSize-1, cellSize-1)
+      .rect(0, 0, cellSize, cellSize)
       .fill({ color: 'red' })
       // .stroke({ color: 'green' });
     this.container.addChild(rect);

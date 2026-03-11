@@ -47,11 +47,13 @@ export function generateBricksHelper(
   const baseLeftWidthBlocksAmount = 2;
   const baseLeftHeightBlocksAmount = 4;
 
+  const leftCellGap = 0;
+
   // palka 1
   for (let i = palka1XStart; i < palka1XStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -61,7 +63,7 @@ export function generateBricksHelper(
   for (let i = palka2XStart; i < palka2XStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -71,7 +73,7 @@ export function generateBricksHelper(
   for (let i = palka3XStart; i < palka3XStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -81,7 +83,7 @@ export function generateBricksHelper(
   for (let i = palka4XStart; i < palka4XStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -91,7 +93,7 @@ export function generateBricksHelper(
   for (let i = palka1XStart; i < palka1XStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaBottomYStart; j < palkaBottomYStart + palkaBottomHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -101,7 +103,7 @@ export function generateBricksHelper(
   for (let i = palka2XStart; i < palka2XStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaBottomYStart; j < palkaBottomYStart + palkaBottomHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -111,7 +113,7 @@ export function generateBricksHelper(
   for (let i = palka3XStart; i < palka3XStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaBottomYStart; j < palkaBottomYStart + palkaBottomHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -121,7 +123,7 @@ export function generateBricksHelper(
   for (let i = palka4XStart; i < palka4XStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaBottomYStart; j < palkaBottomYStart + palkaBottomHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -131,7 +133,7 @@ export function generateBricksHelper(
   for (let i = palkaCenterLeftXStart; i < palkaCenterLeftXStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaCenterLeftHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -141,7 +143,7 @@ export function generateBricksHelper(
   for (let i = palkaCenterRightXStart; i < palkaCenterRightXStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaCenterLeftHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -155,7 +157,7 @@ export function generateBricksHelper(
       j++
     ) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -169,7 +171,7 @@ export function generateBricksHelper(
       j++
     ) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -183,7 +185,7 @@ export function generateBricksHelper(
       j++
     ) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -197,7 +199,7 @@ export function generateBricksHelper(
       j++
     ) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -217,7 +219,7 @@ export function generateBricksHelper(
       j++
     ) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -235,7 +237,7 @@ export function generateBricksHelper(
       j++
     ) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -253,7 +255,7 @@ export function generateBricksHelper(
       j++
     ) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -271,7 +273,7 @@ export function generateBricksHelper(
       j++
     ) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -289,7 +291,7 @@ export function generateBricksHelper(
       j++
     ) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -301,7 +303,7 @@ export function generateBricksHelper(
   for (let i = baseXStart; i < baseXStart + baseTopWidthBlocksAmount; i++) {
     for (let j = baseTopYStart; j < baseTopYStart + baseTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -311,7 +313,7 @@ export function generateBricksHelper(
   for (let i = baseXStart; i < baseXStart + baseLeftWidthBlocksAmount; i++) {
     for (let j = baseLeftYStart; j < baseLeftYStart + baseLeftHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
@@ -321,7 +323,7 @@ export function generateBricksHelper(
   for (let i = baseRightXStart; i < baseRightXStart + baseLeftWidthBlocksAmount; i++) {
     for (let j = baseLeftYStart; j < baseLeftYStart + baseLeftHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
-      brick.setX(sceneX + cellSize * i);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + cellSize * j);
       bricks.push(brick);
     }
