@@ -11,11 +11,15 @@ export class Tank {
   private tankSize: number;
 
   public direction: Direction = 'top';
+  public willBeRotated: boolean = false;
 
   constructor(cellSize: number, color: ColorSource = 0x00ff00) {
     this.container = new Container();
     this.tankSize = cellSize * TANK_SIZE_CELLS;
-    const rect = new Graphics().rect(0, 0, this.tankSize, this.tankSize).fill({ color });
+    const rect = new Graphics()
+      .rect(0, 0, this.tankSize - 1, this.tankSize - 1)
+      .fill({ color })
+      .stroke({ color: 0x05faf7 });
     this.front = new Graphics().rect(0, 0, rect.width / 6, rect.width / 6).fill({ color: 'red' });
 
     rect.addChild(this.front);
@@ -55,5 +59,9 @@ export class Tank {
       this.front.x = this.tankSize - this.front.width;
       this.front.y = this.tankSize / 3 + this.front.width / 2;
     }
+  }
+
+  public setWillBeRotated(value: boolean): void {
+    this.willBeRotated = value;
   }
 }

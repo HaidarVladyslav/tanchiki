@@ -12,6 +12,10 @@ import {
 import { generateBricksHelper } from './helpers/generate-bricks';
 import { hasCollisions } from './helpers/has-collisions';
 import { Bullet } from './bullet';
+import { getRandomDirection } from './helpers/get-random-direction';
+import { getRandomTimeout } from './helpers/get-random-timeout';
+import { getRandomColor } from './helpers/get-random-color';
+import { TANK_SIZE_CELLS } from './constants/tank-size-cells';
 
 @Component({
   selector: 'app-root',
@@ -43,6 +47,7 @@ export class App {
       const cellSize = scene.cellSize;
       const cellsAmount = scene.cellsAmount;
       const moveStep = cellSize / 2;
+      const enemiesXMultiplier = 16;
 
       const countToUpdate = COUNT_TO_UPDATE_LOCATION;
       const countToUpdateBullet = COUNT_TO_UPDATE_BULLET;
@@ -63,15 +68,150 @@ export class App {
       tank.setY(scene.container.y + scene.container.width - tank.container.height - 1);
 
       function addEnemies() {
-        enemies.push(new Tank(cellSize, 0x0000ff));
-        enemies.push(new Tank(cellSize, 0xffff00));
+        addEnemy(enemies.length * enemiesXMultiplier);
+        addEnemy(enemies.length * enemiesXMultiplier);
+        addEnemy(enemies.length * enemiesXMultiplier);
+      }
 
-        enemies.forEach((enemy, index) => {
-          app.stage.addChild(enemy.container);
-          enemy.setX(scene.container.x + cellSize * (index * 8));
-          enemy.setY(scene.container.y);
-          enemy.rotateFront('right');
-        });
+      function addEnemy(index: number) {
+        const enemy = new Tank(cellSize, getRandomColor());
+        enemies.push(enemy);
+        app.stage.addChild(enemy.container);
+        enemy.setX(scene.container.x + cellSize * index);
+        enemy.setY(scene.container.y);
+        enemy.rotateFront(getRandomDirection());
+      }
+
+      function moveEnemies() {
+        if (count >= countToUpdate) {
+          enemies.forEach((enemy, index) => {
+            if (
+              enemy.container.x + enemy.container.width >=
+                scene.container.x + scene.container.width &&
+              enemy.direction === 'right'
+            ) {
+              // right limit
+              enemy.setX(scene.container.x + scene.container.width - enemy.container.width);
+              enemy.rotateFront(getRandomDirection());
+            }
+            if (enemy.container.x <= scene.container.x && enemy.direction === 'left') {
+              // left limit
+              enemy.setX(scene.container.x);
+              enemy.rotateFront(getRandomDirection());
+            }
+            if (
+              enemy.container.y + enemy.container.height >=
+                scene.container.y + scene.container.height &&
+              enemy.direction === 'bottom'
+            ) {
+              // bottom limit
+              enemy.setY(scene.container.y + scene.container.height - enemy.container.height);
+              enemy.rotateFront(getRandomDirection());
+            }
+            if (enemy.container.y <= scene.container.y && enemy.direction === 'top') {
+              // top limit
+              enemy.setY(scene.container.y);
+              enemy.rotateFront(getRandomDirection());
+            }
+
+            const hasBrickOnTheRight = bricks.find(
+              (brick) => hasCollisions(enemy.container, brick.container).right,
+            );
+
+            const hasOtherEnemyOnTheRight = enemies.find((otherEnemy) => {
+              if (otherEnemy.container.uid === enemy.container.uid) {
+                return false;
+              }
+              return hasCollisions(enemy.container, otherEnemy.container).right;
+            });
+
+            const hasBrickOnTheLeft = bricks.find(
+              (brick) => hasCollisions(enemy.container, brick.container).left,
+            );
+
+            const hasOtherEnemyOnTheLeft = enemies.find((otherEnemy) => {
+              if (otherEnemy.container.uid === enemy.container.uid) {
+                return false;
+              }
+              return hasCollisions(enemy.container, otherEnemy.container).left;
+            });
+
+            const hasBrickAtBottom = bricks.find(
+              (brick) => hasCollisions(enemy.container, brick.container).bottom,
+            );
+
+            const hasOtherEnemyAtBottom = enemies.find((otherEnemy) => {
+              if (otherEnemy.container.uid === enemy.container.uid) {
+                return false;
+              }
+              return hasCollisions(enemy.container, otherEnemy.container).bottom;
+            });
+
+            const hasBrickAtTop = bricks.find(
+              (brick) => hasCollisions(enemy.container, brick.container).top,
+            );
+
+            const hasOtherEnemyAtTop = enemies.find((otherEnemy) => {
+              if (otherEnemy.container.uid === enemy.container.uid) {
+                return false;
+              }
+              return hasCollisions(enemy.container, otherEnemy.container).top;
+            });
+
+            const hasMainTankAtTop = hasCollisions(enemy.container, tank.container).top;
+            const hasMainTankAtBottom = hasCollisions(enemy.container, tank.container).bottom;
+            const hasMainTankOnTheLeft = hasCollisions(enemy.container, tank.container).left;
+            const hasMainTankOnTheRight = hasCollisions(enemy.container, tank.container).right;
+            if (enemy.willBeRotated) {
+              return;
+            }
+
+            if (enemy.direction === 'left') {
+              if (!hasOtherEnemyOnTheLeft && !hasBrickOnTheLeft && !hasMainTankOnTheLeft) {
+                enemy.container.x -= moveStep;
+              } else {
+                enemy.setWillBeRotated(true);
+                setTimeout(() => {
+                  enemy.setWillBeRotated(false);
+                  enemy.rotateFront(getRandomDirection());
+                }, getRandomTimeout());
+              }
+            }
+            if (enemy.direction === 'right') {
+              if (!hasOtherEnemyOnTheRight && !hasBrickOnTheRight && !hasMainTankOnTheRight) {
+                enemy.container.x += moveStep;
+              } else {
+                enemy.setWillBeRotated(true);
+                setTimeout(() => {
+                  enemy.setWillBeRotated(false);
+                  enemy.rotateFront(getRandomDirection());
+                }, getRandomTimeout());
+              }
+            }
+            if (enemy.direction === 'top') {
+              if (!hasOtherEnemyAtTop && !hasBrickAtTop && !hasMainTankAtTop) {
+                enemy.container.y -= moveStep;
+              } else {
+                enemy.setWillBeRotated(true);
+                setTimeout(() => {
+                  enemy.setWillBeRotated(false);
+                  enemy.rotateFront(getRandomDirection());
+                }, getRandomTimeout());
+              }
+            }
+            if (enemy.direction === 'bottom') {
+              if (!hasOtherEnemyAtBottom && !hasBrickAtBottom && !hasMainTankAtBottom) {
+                enemy.container.y += moveStep;
+              } else {
+                enemy.setWillBeRotated(true);
+                setTimeout(() => {
+                  enemy.setWillBeRotated(false);
+                  enemy.rotateFront(getRandomDirection());
+                }, getRandomTimeout());
+              }
+            }
+          });
+        }
       }
 
       function generateBricks() {
@@ -235,6 +375,8 @@ export class App {
             if (index !== -1) {
               enemies.splice(index, 1);
             }
+
+            addEnemy(Math.min(enemies.length * enemiesXMultiplier, cellsAmount - TANK_SIZE_CELLS));
           });
           removeBullet(bullet);
         }
@@ -254,67 +396,63 @@ export class App {
       }
 
       function updateTankLocation(state: ControllerState) {
-        if (++count >= countToUpdate) {
-          const noWallOnTheRight =
-            tank.container.x <
-            scene.container.x + scene.container.width - tank.container.width - moveStep;
-          const noWallOnTheLeft = tank.container.x > scene.container.x;
-          const noWallAtTop = tank.container.y > scene.container.y;
-          const noWallAtBottom =
-            tank.container.y <
-            scene.container.y + scene.container.height - tank.container.height - moveStep;
+        const noWallOnTheRight =
+          tank.container.x <
+          scene.container.x + scene.container.width - tank.container.width - moveStep;
+        const noWallOnTheLeft = tank.container.x > scene.container.x;
+        const noWallAtTop = tank.container.y > scene.container.y;
+        const noWallAtBottom =
+          tank.container.y <
+          scene.container.y + scene.container.height - tank.container.height - moveStep;
 
-          const hasBrickOnTheRight = bricks.find((brick) => {
-            return hasCollisions(tank.container, brick.container).right;
-          });
+        const hasBrickOnTheRight = bricks.find((brick) => {
+          return hasCollisions(tank.container, brick.container).right;
+        });
 
-          const hasTankOnTheRight = enemies.find((enemy) => {
-            return hasCollisions(tank.container, enemy.container).right;
-          });
+        const hasTankOnTheRight = enemies.find((enemy) => {
+          return hasCollisions(tank.container, enemy.container).right;
+        });
 
-          const hasBrickOnTheLeft = bricks.find((brick) => {
-            return hasCollisions(tank.container, brick.container).left;
-          });
+        const hasBrickOnTheLeft = bricks.find((brick) => {
+          return hasCollisions(tank.container, brick.container).left;
+        });
 
-          const hasTankOnTheLeft = enemies.find((enemy) => {
-            return hasCollisions(tank.container, enemy.container).left;
-          });
+        const hasTankOnTheLeft = enemies.find((enemy) => {
+          return hasCollisions(tank.container, enemy.container).left;
+        });
 
-          const hasBrickAtBottom = bricks.find((brick) => {
-            return hasCollisions(tank.container, brick.container).bottom;
-          });
+        const hasBrickAtBottom = bricks.find((brick) => {
+          return hasCollisions(tank.container, brick.container).bottom;
+        });
 
-          const hasTankAtBottom = enemies.find((enemy) => {
-            return hasCollisions(tank.container, enemy.container).bottom;
-          });
+        const hasTankAtBottom = enemies.find((enemy) => {
+          return hasCollisions(tank.container, enemy.container).bottom;
+        });
 
-          const hasBrickAtTop = bricks.find((brick) => {
-            return hasCollisions(tank.container, brick.container).top;
-          });
+        const hasBrickAtTop = bricks.find((brick) => {
+          return hasCollisions(tank.container, brick.container).top;
+        });
 
-          const hasTankAtTop = enemies.find((enemy) => {
-            return hasCollisions(tank.container, enemy.container).top;
-          });
+        const hasTankAtTop = enemies.find((enemy) => {
+          return hasCollisions(tank.container, enemy.container).top;
+        });
 
-          if (state.right.pressed) {
-            if (noWallOnTheRight && !hasBrickOnTheRight && !hasTankOnTheRight) {
-              tank.container.x += moveStep;
-            }
-          } else if (state.left.pressed) {
-            if (noWallOnTheLeft && !hasBrickOnTheLeft && !hasTankOnTheLeft) {
-              tank.container.x -= moveStep;
-            }
-          } else if (state.top.pressed) {
-            if (noWallAtTop && !hasBrickAtTop && !hasTankAtTop) {
-              tank.container.y -= moveStep;
-            }
-          } else if (state.bottom.pressed) {
-            if (noWallAtBottom && !hasBrickAtBottom && !hasTankAtBottom) {
-              tank.container.y += moveStep;
-            }
+        if (state.right.pressed) {
+          if (noWallOnTheRight && !hasBrickOnTheRight && !hasTankOnTheRight) {
+            tank.container.x += moveStep;
           }
-
-          count = 0;
+        } else if (state.left.pressed) {
+          if (noWallOnTheLeft && !hasBrickOnTheLeft && !hasTankOnTheLeft) {
+            tank.container.x -= moveStep;
+          }
+        } else if (state.top.pressed) {
+          if (noWallAtTop && !hasBrickAtTop && !hasTankAtTop) {
+            tank.container.y -= moveStep;
+          }
+        } else if (state.bottom.pressed) {
+          if (noWallAtBottom && !hasBrickAtBottom && !hasTankAtBottom) {
+            tank.container.y += moveStep;
+          }
         }
       }
 
@@ -324,8 +462,16 @@ export class App {
       app.ticker.add((time) => {
         const state = this.controller.stateExposed();
 
+        function moveTick() {
+          if (++count >= countToUpdate) {
+            moveEnemies();
+            updateTankLocation(state);
+            count = 0;
+          }
+        }
+
+        moveTick();
         updateTankDirection(state);
-        updateTankLocation(state);
         shootBullet(state);
         checkBulletCollision(bullet);
         updateBulletPosition(bullet);
