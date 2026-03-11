@@ -10,7 +10,15 @@ export class Scene {
   public cellSize: number;
   public cellsAmount: number;
 
-  constructor(x: number, y: number, width: number, height: number) {
+  constructor(x: number, y: number, wwidth: number, height: number) {
+    const gridParams = buildGrid(new Graphics());
+    const gridPixel = gridParams.graphics
+    .stroke({
+      color: 0xffffff,
+      pixelLine: true,
+      width: 1,
+    });
+    const width = gridParams.width;
     this.width = width;
     this.height = height;
     this.x = x - this.width / 2;
@@ -19,13 +27,6 @@ export class Scene {
     this.container = new Container();
     this.container.x = this.x;
     this.container.y = (height - width) / 2;
-
-    const gridParams = buildGrid(new Graphics(), width);
-    const gridPixel = gridParams.graphics.stroke({
-      color: 0xffffff,
-      pixelLine: false,
-      width: 2,
-    });
     this.cellSize = gridParams.cellSize;
     this.cellsAmount = gridParams.cellsAmount;
 

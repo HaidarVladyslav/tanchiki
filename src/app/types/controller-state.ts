@@ -1,5 +1,3 @@
-// export type KeyCode = 'right' | 'left' | 'up' | 'down';
+import { Action } from './action';
 
-import { Direction } from './direction';
-
-export type ControllerState = { [key in Direction]: { pressed: boolean } };
+export type ControllerState = { [key in Action]: { pressed: boolean } };

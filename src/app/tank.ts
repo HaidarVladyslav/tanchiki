@@ -10,6 +10,8 @@ export class Tank {
   private y: number = 0;
   private tankSize: number;
 
+  public direction: Direction = 'right';
+
   constructor(cellSize: number) {
     this.container = new Container();
     this.tankSize = cellSize * TANK_SIZE_CELLS;
@@ -19,7 +21,7 @@ export class Tank {
     rect.addChild(this.front);
     this.container.addChild(rect);
 
-    this.rotateFront('right');
+    this.rotateFront(this.direction);
   }
 
   public setX(value: number): void {
@@ -33,6 +35,7 @@ export class Tank {
   }
 
   public rotateFront(direction: Direction): void {
+    this.direction = direction;
     if (direction === 'top') {
       this.front.x = this.tankSize / 3 + this.front.width / 2;
       this.front.y = 0;

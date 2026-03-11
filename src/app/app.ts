@@ -5,8 +5,13 @@ import { Scene } from './scene';
 import { Tank } from './tank';
 import { ControllerState } from './types/controller-state';
 import { Brick } from './brick';
-import { COUNT_TO_UPDATE_LOCATION } from './constants/count-to-update-location';
+import {
+  COUNT_TO_UPDATE_BULLET,
+  COUNT_TO_UPDATE_LOCATION,
+} from './constants/count-to-update-location';
 import { generateBricksHelper } from './helpers/generate-bricks';
+import { hasCollisions } from './helpers/has-collisions';
+import { Bullet } from './bullet';
 
 @Component({
   selector: 'app-root',
@@ -40,10 +45,14 @@ export class App {
       const moveStep = cellSize / 2;
 
       const countToUpdate = COUNT_TO_UPDATE_LOCATION;
+      const countToUpdateBullet = COUNT_TO_UPDATE_BULLET;
       let count = 0;
+      let countOfBulletPing = 0;
       const bricks: Brick[] = [];
 
       const tank = new Tank(cellSize);
+
+      let bullet: null | Bullet = null;
 
       app.stage.addChild(scene.container);
       app.stage.addChild(tank.container);
@@ -76,6 +85,136 @@ export class App {
         }
       }
 
+      function shootBullet(state: ControllerState) {
+        if (!state.shoot.pressed) {
+          return;
+        }
+
+        if (++countOfBulletPing > countToUpdateBullet) {
+          countOfBulletPing = 0;
+        } else {
+          return;
+        }
+
+        if (bullet) {
+          return;
+        }
+
+        const tankDirection = tank.direction;
+        bullet = new Bullet(cellSize, tankDirection);
+        app.stage.addChild(bullet.container);
+
+        const tankPosition = { x: tank.container.x, y: tank.container.y };
+
+        if (tankDirection === 'right') {
+          bullet.container.x = tankPosition.x + tank.container.width;
+          bullet.container.y =
+            tankPosition.y + tank.container.height / 2 - bullet.container.height / 2;
+        }
+
+        if (tankDirection === 'left') {
+          bullet.container.x = tankPosition.x;
+          bullet.container.y =
+            tankPosition.y + tank.container.height / 2 - bullet.container.height / 2;
+        }
+
+        if (tankDirection === 'top') {
+          bullet.container.x =
+            tankPosition.x + tank.container.width / 2 - bullet.container.height / 2;
+          bullet.container.y = tankPosition.y;
+        }
+
+        if (tankDirection === 'bottom') {
+          bullet.container.x =
+            tankPosition.x + tank.container.width / 2 - bullet.container.height / 2;
+          bullet.container.y = tankPosition.y + tank.container.height;
+        }
+      }
+
+      function updateBulletPosition(bullet: Bullet | null) {
+        if (!bullet) {
+          return;
+        }
+
+        if (!bullet.container) {
+          return;
+        }
+
+        const speed = 6;
+        if (bullet.direction === 'right') {
+          bullet.container.x += speed;
+        }
+
+        if (bullet.direction === 'left') {
+          bullet.container.x -= speed;
+        }
+
+        if (bullet.direction === 'top') {
+          bullet.container.y -= speed;
+        }
+
+        if (bullet.direction === 'bottom') {
+          bullet.container.y += speed;
+        }
+      }
+
+      function checkBulletCollision(bullet: Bullet | null) {
+        const isOutOfScene =
+          bullet &&
+          (bullet.container.x + bullet.container.width >=
+            scene.container.x + scene.container.width || // right
+            bullet.container.x < scene.container.x || // left
+            bullet.container.y < scene.container.y || // top
+            bullet.container.y >= scene.container.y + scene.container.height);
+
+        const hasCollisionsBricks = bricks.filter((brick) => {
+          if (!bullet) {
+            return false;
+          }
+
+          const xCollision =
+            (bullet.container.x >= brick.container.x &&
+              bullet.container.x <= brick.container.x + brick.container.width) ||
+            (bullet.container.x + bullet.container.width >= brick.container.x &&
+              bullet.container.x + bullet.container.width <=
+                brick.container.x + brick.container.width);
+
+          const yCollision =
+            (bullet.container.y >= brick.container.y &&
+              bullet.container.y <= brick.container.y + brick.container.height) ||
+            (bullet.container.y + bullet.container.height >= brick.container.y &&
+              bullet.container.y + bullet.container.height <=
+                brick.container.y + brick.container.height);
+
+          return xCollision && yCollision;
+        });
+
+        if (hasCollisionsBricks.length || isOutOfScene) {
+          hasCollisionsBricks.forEach((brick) => {
+            brick.container.removeFromParent();
+            const index = bricks.findIndex(
+              (allBrick) => allBrick.container.uid === brick.container.uid,
+            );
+            if (index !== -1) {
+              bricks.splice(index, 1);
+            }
+          });
+          removeBullet(bullet);
+        }
+      }
+
+      function removeBullet(localBullet: Bullet | null) {
+        console.log('REMOVE BULLET');
+        if (bullet) {
+          bullet.container.removeFromParent();
+          bullet = null;
+        }
+        if (localBullet) {
+          localBullet.container.removeFromParent();
+          localBullet = null;
+        }
+      }
+
       function updateTankLocation(state: ControllerState) {
         if (++count >= countToUpdate) {
           const noWallOnTheRight =
@@ -88,47 +227,19 @@ export class App {
             scene.container.y + scene.container.height - tank.container.height - moveStep;
 
           const hasBrickOnTheRight = bricks.find((brick) => {
-            const hasXCollisionOnNextStep =
-              tank.container.x + tank.container.width >= brick.container.x &&
-              tank.container.x + tank.container.width <= brick.container.x + brick.container.width;
-            const hasYCollisionOnNextStep =
-              tank.container.y + tank.container.height > brick.container.y &&
-              tank.container.y < brick.container.y + brick.container.height;
-
-            return hasXCollisionOnNextStep && hasYCollisionOnNextStep;
+            return hasCollisions(tank.container, brick.container).right;
           });
 
           const hasBrickOnTheLeft = bricks.find((brick) => {
-            const hasXCollision =
-              tank.container.x <= brick.container.x + brick.container.width &&
-              tank.container.x >= brick.container.x;
-            const hasYCollision =
-              tank.container.y + tank.container.height > brick.container.y &&
-              tank.container.y < brick.container.y + brick.container.height;
-            return hasXCollision && hasYCollision;
+            return hasCollisions(tank.container, brick.container).left;
           });
 
           const hasBrickAtBottom = bricks.find((brick) => {
-            const hasYCollision =
-              tank.container.y + tank.container.height >= brick.container.y &&
-              tank.container.y + tank.container.height <=
-                brick.container.y + brick.container.height;
-            const hasXCollision =
-              tank.container.x + tank.container.width > brick.container.x &&
-              tank.container.x < brick.container.x + brick.container.width;
-
-            return hasXCollision && hasYCollision;
+            return hasCollisions(tank.container, brick.container).bottom;
           });
 
           const hasBrickAtTop = bricks.find((brick) => {
-            const hasYCollision =
-              tank.container.y <= brick.container.y + brick.container.height &&
-              tank.container.y >= brick.container.y;
-            const hasXCollision =
-              tank.container.x + tank.container.width > brick.container.x &&
-              tank.container.x < brick.container.x + brick.container.width;
-
-            return hasXCollision && hasYCollision;
+            return hasCollisions(tank.container, brick.container).top;
           });
 
           if (state.right.pressed) {
@@ -160,6 +271,9 @@ export class App {
 
         updateTankDirection(state);
         updateTankLocation(state);
+        shootBullet(state);
+        checkBulletCollision(bullet);
+        updateBulletPosition(bullet);
       });
     })();
   }

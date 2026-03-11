@@ -6,7 +6,10 @@ export class Brick {
   private y: number = 0;
 
   constructor(cellSize: number) {
-    const rect = new Graphics().rect(0, 0, cellSize, cellSize).fill({ color: 'red' });
+    const rect = new Graphics()
+      .rect(0, 0, cellSize-1, cellSize-1)
+      .fill({ color: 'red' })
+      // .stroke({ color: 'green' });
     this.container.addChild(rect);
   }
 

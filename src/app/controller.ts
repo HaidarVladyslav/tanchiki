@@ -1,12 +1,13 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { ControllerState } from './types/controller-state';
-import { Direction } from './types/direction';
+import { Action } from './types/action';
 
-const KEY_MAP: { [key: string]: Direction } = {
+const KEY_MAP: { [key: string]: Action } = {
   ArrowRight: 'right',
   ArrowLeft: 'left',
   ArrowUp: 'top',
   ArrowDown: 'bottom',
+  ' ': 'shoot',
 };
 
 @Injectable({ providedIn: 'root' })
@@ -16,6 +17,7 @@ export class Controller {
     bottom: { pressed: false },
     left: { pressed: false },
     right: { pressed: false },
+    shoot: { pressed: false },
   });
 
   public readonly stateExposed = computed(() => this.state());
@@ -33,7 +35,6 @@ export class Controller {
     if (!code) {
       return;
     }
-
     if (!this.state()[code]) {
       return;
     }
