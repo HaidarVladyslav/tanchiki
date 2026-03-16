@@ -19,6 +19,7 @@ import { TANK_SIZE_CELLS } from './constants/tank-size-cells';
 import { BULLET_REAPPEAR_SPEED, BULLET_SPEED } from './constants/bullet-speed';
 import { MILLISECONDS_TO_BE_UNKILLABLE } from './constants/time-to-be-unkillable';
 import { MILLISECONDS_TIME_TANK_REAPPEARANCE } from './constants/time-tank-reappeareance';
+import { Explosion } from './explosion';
 
 @Component({
   selector: 'app-root',
@@ -58,6 +59,7 @@ export class App {
       let count = 0;
       let countOfBulletPing = 0;
       const bricks: Brick[] = [];
+      const explosions: Explosion[] = [];
 
       let mainTank: Tank | null = null;
       let mainBullet: null | Bullet = null;
@@ -558,6 +560,10 @@ export class App {
         console.log('REMOVE BULLET');
         // add sparkle effect
 
+        if (mainBullet) {
+          const explosion = new Explosion(app, mainBullet.container.x, mainBullet.container.y);
+          explosions.push(explosion);
+        }
         setTimeout(() => {
           if (mainBullet) {
             mainBullet.container.removeFromParent();
@@ -574,6 +580,10 @@ export class App {
         console.log('REMOVE BULLET');
         // add sparkle effect
 
+        if (enemy.bullet) {
+          const explosion = new Explosion(app, enemy.bullet.container.x, enemy.bullet.container.y);
+          explosions.push(explosion);
+        }
         setTimeout(() => {
           if (enemy.bullet) {
             enemy.bullet.container.removeFromParent();
@@ -653,6 +663,22 @@ export class App {
         }
       }
 
+      function moveExplosionParticles() {
+        explosions.forEach((explosion) => {
+          if (explosion) {
+            explosion.moveParticles();
+          }
+        });
+      }
+
+      function removeExplosion() {
+        explosions.forEach((explosion, index) => {
+          if (explosion.isRemoved) {
+            explosions.splice(index, 1);
+          }
+        });
+      }
+
       generateBricks();
       addMainTank();
       addEnemies();
@@ -674,6 +700,8 @@ export class App {
         checkBulletCollision(mainBullet);
         updateBulletPosition(mainBullet);
         shootFromEnemies();
+        moveExplosionParticles();
+        removeExplosion();
       });
     })();
   }
