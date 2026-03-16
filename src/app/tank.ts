@@ -1,6 +1,7 @@
 import { ColorSource, Container, Graphics } from 'pixi.js';
 import { TANK_SIZE_CELLS } from './constants/tank-size-cells';
 import { Direction } from './types/direction';
+import { Bullet } from './bullet';
 
 export class Tank {
   public container: Container;
@@ -12,6 +13,9 @@ export class Tank {
 
   public direction: Direction = 'top';
   public willBeRotated: boolean = false;
+  public willHaveBullet: boolean = false;
+  public bullet: Bullet | null = null;
+  public canBeKilled: boolean = true;
 
   constructor(cellSize: number, color: ColorSource = 0x00ff00) {
     this.container = new Container();
@@ -63,5 +67,17 @@ export class Tank {
 
   public setWillBeRotated(value: boolean): void {
     this.willBeRotated = value;
+  }
+
+  public setBullet(bullet: Bullet | null): void {
+    this.bullet = bullet;
+  }
+
+  public setWillHaveBullet(value: boolean): void {
+    this.willHaveBullet = value;
+  }
+
+  public setCanBeKilled(value: boolean): void {
+    this.canBeKilled = value;
   }
 }

@@ -16,6 +16,8 @@ import { getRandomDirection } from './helpers/get-random-direction';
 import { getRandomTimeout } from './helpers/get-random-timeout';
 import { getRandomColor } from './helpers/get-random-color';
 import { TANK_SIZE_CELLS } from './constants/tank-size-cells';
+import { BULLET_SPEED } from './constants/bullet-speed';
+import { MILLISECONDS_TO_BE_UNKILLABLE } from './constants/time-to-be-unkillable';
 
 @Component({
   selector: 'app-root',
@@ -51,21 +53,33 @@ export class App {
 
       const countToUpdate = COUNT_TO_UPDATE_LOCATION;
       const countToUpdateBullet = COUNT_TO_UPDATE_BULLET;
+      const bulletSpeed = BULLET_SPEED;
       let count = 0;
       let countOfBulletPing = 0;
       const bricks: Brick[] = [];
 
-      const tank = new Tank(cellSize);
+      let mainTank: Tank | null = null;
 
       const enemies: Tank[] = [];
 
       let bullet: null | Bullet = null;
 
       app.stage.addChild(scene.container);
-      app.stage.addChild(tank.container);
 
-      tank.setX(scene.container.x + 16 * cellSize);
-      tank.setY(scene.container.y + scene.container.width - tank.container.height - 1);
+      function addMainTank() {
+        mainTank = new Tank(cellSize);
+        app.stage.addChild(mainTank.container);
+
+        mainTank.setX(scene.container.x + 16 * cellSize);
+        mainTank.setY(scene.container.y + scene.container.width - mainTank.container.height - 1);
+        mainTank.setCanBeKilled(false);
+
+        setTimeout(() => {
+          if (mainTank) {
+            mainTank.setCanBeKilled(true);
+          }
+        }, MILLISECONDS_TO_BE_UNKILLABLE);
+      }
 
       function addEnemies() {
         addEnemy(enemies.length * enemiesXMultiplier);
@@ -158,10 +172,15 @@ export class App {
               return hasCollisions(enemy.container, otherEnemy.container).top;
             });
 
-            const hasMainTankAtTop = hasCollisions(enemy.container, tank.container).top;
-            const hasMainTankAtBottom = hasCollisions(enemy.container, tank.container).bottom;
-            const hasMainTankOnTheLeft = hasCollisions(enemy.container, tank.container).left;
-            const hasMainTankOnTheRight = hasCollisions(enemy.container, tank.container).right;
+            const hasMainTankAtTop =
+              mainTank && hasCollisions(enemy.container, mainTank.container).top;
+            const hasMainTankAtBottom =
+              mainTank && hasCollisions(enemy.container, mainTank.container).bottom;
+            const hasMainTankOnTheLeft =
+              mainTank && hasCollisions(enemy.container, mainTank.container).left;
+            const hasMainTankOnTheRight =
+              mainTank && hasCollisions(enemy.container, mainTank.container).right;
+
             if (enemy.willBeRotated) {
               return;
             }
@@ -214,6 +233,55 @@ export class App {
         }
       }
 
+      function shootFromEnemies() {
+        enemies.forEach((enemy, index) => {
+          if (enemy.bullet) {
+            updateBulletPosition(enemy.bullet);
+            checkEnemyBulletCollision(enemy, enemy.bullet);
+            return;
+          }
+
+          if (enemy.willHaveBullet) {
+            return;
+          }
+
+          enemy.setWillHaveBullet(true);
+
+          const enemyDirection = enemy.direction;
+          const bullet = new Bullet(cellSize, enemyDirection);
+          app.stage.addChild(bullet.container);
+          enemy.setBullet(bullet);
+
+          enemy.setWillHaveBullet(false);
+
+          const enemyPosition = { x: enemy.container.x, y: enemy.container.y };
+
+          if (enemyDirection === 'right') {
+            bullet.container.x = enemyPosition.x + enemy.container.width;
+            bullet.container.y =
+              enemyPosition.y + enemy.container.height / 2 - bullet.container.height / 2;
+          }
+
+          if (enemyDirection === 'left') {
+            bullet.container.x = enemyPosition.x;
+            bullet.container.y =
+              enemyPosition.y + enemy.container.height / 2 - bullet.container.height / 2;
+          }
+
+          if (enemyDirection === 'top') {
+            bullet.container.x =
+              enemyPosition.x + enemy.container.width / 2 - bullet.container.height / 2;
+            bullet.container.y = enemyPosition.y;
+          }
+
+          if (enemyDirection === 'bottom') {
+            bullet.container.x =
+              enemyPosition.x + enemy.container.width / 2 - bullet.container.height / 2;
+            bullet.container.y = enemyPosition.y + enemy.container.height;
+          }
+        });
+      }
+
       function generateBricks() {
         const generatedBricks = generateBricksHelper(
           scene.container.x,
@@ -228,14 +296,17 @@ export class App {
       }
 
       function updateTankDirection(state: ControllerState) {
+        if (!mainTank) {
+          return;
+        }
         if (state.right.pressed) {
-          tank.rotateFront('right');
+          mainTank.rotateFront('right');
         } else if (state.left.pressed) {
-          tank.rotateFront('left');
+          mainTank.rotateFront('left');
         } else if (state.top.pressed) {
-          tank.rotateFront('top');
+          mainTank.rotateFront('top');
         } else if (state.bottom.pressed) {
-          tank.rotateFront('bottom');
+          mainTank.rotateFront('bottom');
         }
       }
 
@@ -254,34 +325,38 @@ export class App {
           return;
         }
 
-        const tankDirection = tank.direction;
+        if (!mainTank) {
+          return;
+        }
+
+        const tankDirection = mainTank.direction;
         bullet = new Bullet(cellSize, tankDirection);
         app.stage.addChild(bullet.container);
 
-        const tankPosition = { x: tank.container.x, y: tank.container.y };
+        const tankPosition = { x: mainTank.container.x, y: mainTank.container.y };
 
         if (tankDirection === 'right') {
-          bullet.container.x = tankPosition.x + tank.container.width;
+          bullet.container.x = tankPosition.x + mainTank.container.width;
           bullet.container.y =
-            tankPosition.y + tank.container.height / 2 - bullet.container.height / 2;
+            tankPosition.y + mainTank.container.height / 2 - bullet.container.height / 2;
         }
 
         if (tankDirection === 'left') {
           bullet.container.x = tankPosition.x;
           bullet.container.y =
-            tankPosition.y + tank.container.height / 2 - bullet.container.height / 2;
+            tankPosition.y + mainTank.container.height / 2 - bullet.container.height / 2;
         }
 
         if (tankDirection === 'top') {
           bullet.container.x =
-            tankPosition.x + tank.container.width / 2 - bullet.container.height / 2;
+            tankPosition.x + mainTank.container.width / 2 - bullet.container.height / 2;
           bullet.container.y = tankPosition.y;
         }
 
         if (tankDirection === 'bottom') {
           bullet.container.x =
-            tankPosition.x + tank.container.width / 2 - bullet.container.height / 2;
-          bullet.container.y = tankPosition.y + tank.container.height;
+            tankPosition.x + mainTank.container.width / 2 - bullet.container.height / 2;
+          bullet.container.y = tankPosition.y + mainTank.container.height;
         }
       }
 
@@ -294,21 +369,20 @@ export class App {
           return;
         }
 
-        const speed = 6;
         if (bullet.direction === 'right') {
-          bullet.container.x += speed;
+          bullet.container.x += bulletSpeed;
         }
 
         if (bullet.direction === 'left') {
-          bullet.container.x -= speed;
+          bullet.container.x -= bulletSpeed;
         }
 
         if (bullet.direction === 'top') {
-          bullet.container.y -= speed;
+          bullet.container.y -= bulletSpeed;
         }
 
         if (bullet.direction === 'bottom') {
-          bullet.container.y += speed;
+          bullet.container.y += bulletSpeed;
         }
       }
 
@@ -347,6 +421,7 @@ export class App {
           if (!bullet) {
             return false;
           }
+
           const xCollision =
             bullet.container.x >= enemy.container.x &&
             bullet.container.x <= enemy.container.x + enemy.container.width;
@@ -368,95 +443,190 @@ export class App {
             }
           });
           hasEnemiesCollision.forEach((enemy) => {
-            enemy.container.removeFromParent();
             const index = enemies.findIndex(
               (allEnemy) => allEnemy.container.uid === enemy.container.uid,
             );
+
             if (index !== -1) {
               enemies.splice(index, 1);
             }
 
+            removeLocalEnemyBullet(enemy, enemy.bullet);
+            enemy.container.removeFromParent();
             addEnemy(Math.min(enemies.length * enemiesXMultiplier, cellsAmount - TANK_SIZE_CELLS));
           });
           removeBullet(bullet);
         }
       }
 
-      function removeBullet(localBullet: Bullet | null) {
-        console.log('REMOVE BULLET');
-        // add sparkle effect
+      function checkEnemyBulletCollision(enemy: Tank, bullet: Bullet | null) {
+        const isOutOfScene =
+          bullet &&
+          (bullet.container.x + bullet.container.width >=
+            scene.container.x + scene.container.width || // right
+            bullet.container.x < scene.container.x || // left
+            bullet.container.y < scene.container.y || // top
+            bullet.container.y >= scene.container.y + scene.container.height);
+
+        const hasCollisionsBricks = bricks.filter((brick) => {
+          if (!bullet) {
+            return false;
+          }
+
+          const xCollision =
+            (bullet.container.x >= brick.container.x &&
+              bullet.container.x <= brick.container.x + brick.container.width) ||
+            (bullet.container.x + bullet.container.width >= brick.container.x &&
+              bullet.container.x + bullet.container.width <=
+                brick.container.x + brick.container.width);
+
+          const yCollision =
+            (bullet.container.y >= brick.container.y &&
+              bullet.container.y <= brick.container.y + brick.container.height) ||
+            (bullet.container.y + bullet.container.height >= brick.container.y &&
+              bullet.container.y + bullet.container.height <=
+                brick.container.y + brick.container.height);
+
+          return xCollision && yCollision;
+        });
+
+        let hasMainTankCollision: boolean = false;
+
         if (bullet) {
-          bullet.container.removeFromParent();
-          bullet = null;
+          hasMainTankCollision =
+            !!mainTank &&
+            (hasCollisions(bullet.container, mainTank.container).left ||
+              hasCollisions(bullet.container, mainTank.container).right ||
+              hasCollisions(bullet.container, mainTank.container).top ||
+              hasCollisions(bullet.container, mainTank.container).bottom);
         }
-        if (localBullet) {
-          localBullet.container.removeFromParent();
-          localBullet = null;
+
+        if (hasCollisionsBricks.length || isOutOfScene || hasMainTankCollision) {
+          hasCollisionsBricks.forEach((brick) => {
+            brick.container.removeFromParent();
+            const index = bricks.findIndex(
+              (allBrick) => allBrick.container.uid === brick.container.uid,
+            );
+            if (index !== -1) {
+              bricks.splice(index, 1);
+            }
+          });
+
+          if (hasMainTankCollision && mainTank && mainTank.canBeKilled) {
+            removeBullet(mainTank.bullet);
+            mainTank.container.removeFromParent();
+            mainTank = null;
+          }
+
+          if (hasMainTankCollision && mainTank && !mainTank.canBeKilled) {
+            return;
+          }
+
+          removeLocalEnemyBullet(enemy, bullet);
         }
       }
 
+      function removeBullet(localBullet: Bullet | null) {
+        console.log('REMOVE BULLET');
+        // add sparkle effect
+
+        setTimeout(() => {
+          if (bullet) {
+            bullet.container.removeFromParent();
+            bullet = null;
+          }
+          if (localBullet) {
+            localBullet.container.removeFromParent();
+            localBullet = null;
+          }
+        }, 50);
+      }
+
+      function removeLocalEnemyBullet(enemy: Tank, localBullet: Bullet | null) {
+        console.log('REMOVE BULLET');
+        // add sparkle effect
+
+        setTimeout(() => {
+          if (enemy.bullet) {
+            enemy.bullet.container.removeFromParent();
+            enemy.setBullet(null);
+          }
+          if (localBullet) {
+            localBullet.container.removeFromParent();
+            if (enemy && enemy.bullet) {
+              enemy.setBullet(null);
+            }
+          }
+        }, 50);
+      }
+
       function updateTankLocation(state: ControllerState) {
+        if (!mainTank) {
+          return;
+        }
+
         const noWallOnTheRight =
-          tank.container.x <
-          scene.container.x + scene.container.width - tank.container.width - moveStep;
-        const noWallOnTheLeft = tank.container.x > scene.container.x;
-        const noWallAtTop = tank.container.y > scene.container.y;
+          mainTank.container.x <
+          scene.container.x + scene.container.width - mainTank.container.width - moveStep;
+        const noWallOnTheLeft = mainTank.container.x > scene.container.x;
+        const noWallAtTop = mainTank.container.y > scene.container.y;
         const noWallAtBottom =
-          tank.container.y <
-          scene.container.y + scene.container.height - tank.container.height - moveStep;
+          mainTank.container.y <
+          scene.container.y + scene.container.height - mainTank.container.height - moveStep;
 
         const hasBrickOnTheRight = bricks.find((brick) => {
-          return hasCollisions(tank.container, brick.container).right;
+          return !!mainTank && hasCollisions(mainTank.container, brick.container).right;
         });
 
         const hasTankOnTheRight = enemies.find((enemy) => {
-          return hasCollisions(tank.container, enemy.container).right;
+          return !!mainTank && hasCollisions(mainTank.container, enemy.container).right;
         });
 
         const hasBrickOnTheLeft = bricks.find((brick) => {
-          return hasCollisions(tank.container, brick.container).left;
+          return !!mainTank && hasCollisions(mainTank.container, brick.container).left;
         });
 
         const hasTankOnTheLeft = enemies.find((enemy) => {
-          return hasCollisions(tank.container, enemy.container).left;
+          return !!mainTank && hasCollisions(mainTank.container, enemy.container).left;
         });
 
         const hasBrickAtBottom = bricks.find((brick) => {
-          return hasCollisions(tank.container, brick.container).bottom;
+          return !!mainTank && hasCollisions(mainTank.container, brick.container).bottom;
         });
 
         const hasTankAtBottom = enemies.find((enemy) => {
-          return hasCollisions(tank.container, enemy.container).bottom;
+          return !!mainTank && hasCollisions(mainTank.container, enemy.container).bottom;
         });
 
         const hasBrickAtTop = bricks.find((brick) => {
-          return hasCollisions(tank.container, brick.container).top;
+          return !!mainTank && hasCollisions(mainTank.container, brick.container).top;
         });
 
         const hasTankAtTop = enemies.find((enemy) => {
-          return hasCollisions(tank.container, enemy.container).top;
+          return !!mainTank && hasCollisions(mainTank.container, enemy.container).top;
         });
 
         if (state.right.pressed) {
           if (noWallOnTheRight && !hasBrickOnTheRight && !hasTankOnTheRight) {
-            tank.container.x += moveStep;
+            mainTank.container.x += moveStep;
           }
         } else if (state.left.pressed) {
           if (noWallOnTheLeft && !hasBrickOnTheLeft && !hasTankOnTheLeft) {
-            tank.container.x -= moveStep;
+            mainTank.container.x -= moveStep;
           }
         } else if (state.top.pressed) {
           if (noWallAtTop && !hasBrickAtTop && !hasTankAtTop) {
-            tank.container.y -= moveStep;
+            mainTank.container.y -= moveStep;
           }
         } else if (state.bottom.pressed) {
           if (noWallAtBottom && !hasBrickAtBottom && !hasTankAtBottom) {
-            tank.container.y += moveStep;
+            mainTank.container.y += moveStep;
           }
         }
       }
 
       generateBricks();
+      addMainTank();
       addEnemies();
 
       app.ticker.add((time) => {
@@ -475,6 +645,7 @@ export class App {
         shootBullet(state);
         checkBulletCollision(bullet);
         updateBulletPosition(bullet);
+        shootFromEnemies();
       });
     })();
   }

@@ -1,0 +1,1 @@
+export const MILLISECONDS_TO_BE_UNKILLABLE = 5000;
