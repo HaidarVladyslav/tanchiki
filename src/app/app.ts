@@ -16,8 +16,9 @@ import { getRandomDirection } from './helpers/get-random-direction';
 import { getRandomTimeout } from './helpers/get-random-timeout';
 import { getRandomColor } from './helpers/get-random-color';
 import { TANK_SIZE_CELLS } from './constants/tank-size-cells';
-import { BULLET_SPEED } from './constants/bullet-speed';
+import { BULLET_REAPPEAR_SPEED, BULLET_SPEED } from './constants/bullet-speed';
 import { MILLISECONDS_TO_BE_UNKILLABLE } from './constants/time-to-be-unkillable';
+import { MILLISECONDS_TIME_TANK_REAPPEARANCE } from './constants/time-tank-reappeareance';
 
 @Component({
   selector: 'app-root',
@@ -59,10 +60,9 @@ export class App {
       const bricks: Brick[] = [];
 
       let mainTank: Tank | null = null;
+      let mainBullet: null | Bullet = null;
 
       const enemies: Tank[] = [];
-
-      let bullet: null | Bullet = null;
 
       app.stage.addChild(scene.container);
 
@@ -247,38 +247,46 @@ export class App {
 
           enemy.setWillHaveBullet(true);
 
-          const enemyDirection = enemy.direction;
-          const bullet = new Bullet(cellSize, enemyDirection);
-          app.stage.addChild(bullet.container);
-          enemy.setBullet(bullet);
+          setTimeout(() => {
+            const ifEnemyStillExists = enemies.find(
+              (allEnemy) => allEnemy.container.uid === enemy.container.uid,
+            );
+            if (!ifEnemyStillExists) {
+              return;
+            }
+            const enemyDirection = enemy.direction;
+            const bullet = new Bullet(cellSize, enemyDirection);
+            app.stage.addChild(bullet.container);
+            enemy.setBullet(bullet);
 
-          enemy.setWillHaveBullet(false);
+            enemy.setWillHaveBullet(false);
 
-          const enemyPosition = { x: enemy.container.x, y: enemy.container.y };
+            const enemyPosition = { x: enemy.container.x, y: enemy.container.y };
 
-          if (enemyDirection === 'right') {
-            bullet.container.x = enemyPosition.x + enemy.container.width;
-            bullet.container.y =
-              enemyPosition.y + enemy.container.height / 2 - bullet.container.height / 2;
-          }
+            if (enemyDirection === 'right') {
+              bullet.container.x = enemyPosition.x + enemy.container.width;
+              bullet.container.y =
+                enemyPosition.y + enemy.container.height / 2 - bullet.container.height / 2;
+            }
 
-          if (enemyDirection === 'left') {
-            bullet.container.x = enemyPosition.x;
-            bullet.container.y =
-              enemyPosition.y + enemy.container.height / 2 - bullet.container.height / 2;
-          }
+            if (enemyDirection === 'left') {
+              bullet.container.x = enemyPosition.x;
+              bullet.container.y =
+                enemyPosition.y + enemy.container.height / 2 - bullet.container.height / 2;
+            }
 
-          if (enemyDirection === 'top') {
-            bullet.container.x =
-              enemyPosition.x + enemy.container.width / 2 - bullet.container.height / 2;
-            bullet.container.y = enemyPosition.y;
-          }
+            if (enemyDirection === 'top') {
+              bullet.container.x =
+                enemyPosition.x + enemy.container.width / 2 - bullet.container.height / 2;
+              bullet.container.y = enemyPosition.y;
+            }
 
-          if (enemyDirection === 'bottom') {
-            bullet.container.x =
-              enemyPosition.x + enemy.container.width / 2 - bullet.container.height / 2;
-            bullet.container.y = enemyPosition.y + enemy.container.height;
-          }
+            if (enemyDirection === 'bottom') {
+              bullet.container.x =
+                enemyPosition.x + enemy.container.width / 2 - bullet.container.height / 2;
+              bullet.container.y = enemyPosition.y + enemy.container.height;
+            }
+          }, getRandomTimeout() * BULLET_REAPPEAR_SPEED);
         });
       }
 
@@ -321,7 +329,7 @@ export class App {
           return;
         }
 
-        if (bullet) {
+        if (mainBullet) {
           return;
         }
 
@@ -330,33 +338,33 @@ export class App {
         }
 
         const tankDirection = mainTank.direction;
-        bullet = new Bullet(cellSize, tankDirection);
-        app.stage.addChild(bullet.container);
+        mainBullet = new Bullet(cellSize, tankDirection);
+        app.stage.addChild(mainBullet.container);
 
         const tankPosition = { x: mainTank.container.x, y: mainTank.container.y };
 
         if (tankDirection === 'right') {
-          bullet.container.x = tankPosition.x + mainTank.container.width;
-          bullet.container.y =
-            tankPosition.y + mainTank.container.height / 2 - bullet.container.height / 2;
+          mainBullet.container.x = tankPosition.x + mainTank.container.width;
+          mainBullet.container.y =
+            tankPosition.y + mainTank.container.height / 2 - mainBullet.container.height / 2;
         }
 
         if (tankDirection === 'left') {
-          bullet.container.x = tankPosition.x;
-          bullet.container.y =
-            tankPosition.y + mainTank.container.height / 2 - bullet.container.height / 2;
+          mainBullet.container.x = tankPosition.x;
+          mainBullet.container.y =
+            tankPosition.y + mainTank.container.height / 2 - mainBullet.container.height / 2;
         }
 
         if (tankDirection === 'top') {
-          bullet.container.x =
-            tankPosition.x + mainTank.container.width / 2 - bullet.container.height / 2;
-          bullet.container.y = tankPosition.y;
+          mainBullet.container.x =
+            tankPosition.x + mainTank.container.width / 2 - mainBullet.container.height / 2;
+          mainBullet.container.y = tankPosition.y;
         }
 
         if (tankDirection === 'bottom') {
-          bullet.container.x =
-            tankPosition.x + mainTank.container.width / 2 - bullet.container.height / 2;
-          bullet.container.y = tankPosition.y + mainTank.container.height;
+          mainBullet.container.x =
+            tankPosition.x + mainTank.container.width / 2 - mainBullet.container.height / 2;
+          mainBullet.container.y = tankPosition.y + mainTank.container.height;
         }
       }
 
@@ -491,6 +499,7 @@ export class App {
         });
 
         let hasMainTankCollision: boolean = false;
+        let hasMainTankBulletCollision: boolean = false;
 
         if (bullet) {
           hasMainTankCollision =
@@ -499,6 +508,22 @@ export class App {
               hasCollisions(bullet.container, mainTank.container).right ||
               hasCollisions(bullet.container, mainTank.container).top ||
               hasCollisions(bullet.container, mainTank.container).bottom);
+
+          hasMainTankBulletCollision =
+            !!mainBullet &&
+            (hasCollisions(bullet.container, mainBullet.container).left ||
+              hasCollisions(bullet.container, mainBullet.container).right ||
+              hasCollisions(bullet.container, mainBullet.container).top ||
+              hasCollisions(bullet.container, mainBullet.container).bottom);
+        }
+
+        if (hasMainTankBulletCollision) {
+          if (mainBullet) {
+            removeBullet(mainBullet);
+            mainBullet = null;
+          }
+
+          removeLocalEnemyBullet(enemy, bullet);
         }
 
         if (hasCollisionsBricks.length || isOutOfScene || hasMainTankCollision) {
@@ -516,6 +541,9 @@ export class App {
             removeBullet(mainTank.bullet);
             mainTank.container.removeFromParent();
             mainTank = null;
+            setTimeout(() => {
+              addMainTank();
+            }, MILLISECONDS_TIME_TANK_REAPPEARANCE);
           }
 
           if (hasMainTankCollision && mainTank && !mainTank.canBeKilled) {
@@ -531,9 +559,9 @@ export class App {
         // add sparkle effect
 
         setTimeout(() => {
-          if (bullet) {
-            bullet.container.removeFromParent();
-            bullet = null;
+          if (mainBullet) {
+            mainBullet.container.removeFromParent();
+            mainBullet = null;
           }
           if (localBullet) {
             localBullet.container.removeFromParent();
@@ -643,8 +671,8 @@ export class App {
         moveTick();
         updateTankDirection(state);
         shootBullet(state);
-        checkBulletCollision(bullet);
-        updateBulletPosition(bullet);
+        checkBulletCollision(mainBullet);
+        updateBulletPosition(mainBullet);
         shootFromEnemies();
       });
     })();
