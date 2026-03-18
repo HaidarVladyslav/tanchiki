@@ -4,10 +4,11 @@ import { Direction } from '../types/direction';
 export function hasCollisions(
   currentTarget: Container,
   nextTarget: Container,
+  cellSize: number,
 ): { [key in Direction]: boolean } {
   return {
     right:
-      currentTarget.x + currentTarget.width >= nextTarget.x &&
+      currentTarget.x + currentTarget.width + cellSize / 4 >= nextTarget.x &&
       currentTarget.x + currentTarget.width <= nextTarget.x + nextTarget.width &&
       currentTarget.y + currentTarget.height > nextTarget.y &&
       currentTarget.y < nextTarget.y + nextTarget.height,
@@ -22,7 +23,7 @@ export function hasCollisions(
       currentTarget.x + currentTarget.width > nextTarget.x &&
       currentTarget.x < nextTarget.x + nextTarget.width,
     bottom:
-      currentTarget.y + currentTarget.height >= nextTarget.y &&
+      currentTarget.y + currentTarget.height + cellSize / 4 >= nextTarget.y &&
       currentTarget.y + currentTarget.height <= nextTarget.y + nextTarget.height &&
       currentTarget.x + currentTarget.width > nextTarget.x &&
       currentTarget.x < nextTarget.x + nextTarget.width,

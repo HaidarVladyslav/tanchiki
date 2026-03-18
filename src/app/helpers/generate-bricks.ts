@@ -47,14 +47,14 @@ export function generateBricksHelper(
   const baseLeftWidthBlocksAmount = 2;
   const baseLeftHeightBlocksAmount = 4;
 
-  const leftCellGap = 0;
+  const leftCellGap = 1;
 
   // palka 1
   for (let i = palka1XStart; i < palka1XStart + palkaWidthBlocksAmount; i++) {
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -64,7 +64,7 @@ export function generateBricksHelper(
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -74,7 +74,7 @@ export function generateBricksHelper(
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -84,7 +84,7 @@ export function generateBricksHelper(
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -94,7 +94,7 @@ export function generateBricksHelper(
     for (let j = palkaBottomYStart; j < palkaBottomYStart + palkaBottomHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -104,7 +104,7 @@ export function generateBricksHelper(
     for (let j = palkaBottomYStart; j < palkaBottomYStart + palkaBottomHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -114,7 +114,7 @@ export function generateBricksHelper(
     for (let j = palkaBottomYStart; j < palkaBottomYStart + palkaBottomHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -124,7 +124,7 @@ export function generateBricksHelper(
     for (let j = palkaBottomYStart; j < palkaBottomYStart + palkaBottomHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -134,7 +134,7 @@ export function generateBricksHelper(
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaCenterLeftHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -144,7 +144,7 @@ export function generateBricksHelper(
     for (let j = palkaTopYStart; j < palkaTopYStart + palkaCenterLeftHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -158,7 +158,7 @@ export function generateBricksHelper(
     ) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -172,7 +172,7 @@ export function generateBricksHelper(
     ) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -186,7 +186,7 @@ export function generateBricksHelper(
     ) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -200,7 +200,7 @@ export function generateBricksHelper(
     ) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -220,7 +220,7 @@ export function generateBricksHelper(
     ) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -238,7 +238,7 @@ export function generateBricksHelper(
     ) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -256,7 +256,7 @@ export function generateBricksHelper(
     ) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -274,7 +274,7 @@ export function generateBricksHelper(
     ) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -292,7 +292,7 @@ export function generateBricksHelper(
     ) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -304,7 +304,7 @@ export function generateBricksHelper(
     for (let j = baseTopYStart; j < baseTopYStart + baseTopHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -314,7 +314,7 @@ export function generateBricksHelper(
     for (let j = baseLeftYStart; j < baseLeftYStart + baseLeftHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }
@@ -324,7 +324,7 @@ export function generateBricksHelper(
     for (let j = baseLeftYStart; j < baseLeftYStart + baseLeftHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
-      brick.setY(sceneY + cellSize * j);
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
     }
   }

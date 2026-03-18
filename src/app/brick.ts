@@ -7,9 +7,9 @@ export class Brick {
 
   constructor(cellSize: number) {
     const rect = new Graphics()
-      .rect(0, 0, cellSize, cellSize)
+      .rect(0, 0, cellSize - 2, cellSize - 2)
       .fill({ color: 'red' })
-      // .stroke({ color: 'green' });
+      .stroke({ color: 'green' });
     this.container.addChild(rect);
   }
 

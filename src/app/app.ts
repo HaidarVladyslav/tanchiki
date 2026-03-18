@@ -22,6 +22,7 @@ import { MILLISECONDS_TIME_TANK_REAPPEARANCE } from './constants/time-tank-reapp
 import { Explosion } from './explosion';
 import { MAIN_TANK_SETTINGS } from './constants/main-tank-settings';
 import { Stats } from './stats';
+import { Perepug } from './perepug';
 
 @Component({
   selector: 'app-root',
@@ -46,6 +47,7 @@ export class App {
       document.body.appendChild(app.canvas);
 
       const svgHeart = await Assets.load('heart.svg');
+      const perepugTexture = await Assets.load('perepug-dendy-full.png');
 
       const width = app.screen.width;
       const height = app.screen.height;
@@ -61,11 +63,13 @@ export class App {
       const bulletSpeed = BULLET_SPEED;
       let count = 0;
       let countOfBulletPing = 0;
+      let isGameEnded: boolean = false;
       const bricks: Brick[] = [];
       const explosions: Explosion[] = [];
 
       let mainTank: Tank | null = null;
       let mainBullet: null | Bullet = null;
+      let perepug: Perepug | null = null;
       let previouslyGeneratedEnemyXPosition = 0;
 
       const enemies: Tank[] = [];
@@ -90,6 +94,7 @@ export class App {
       }
 
       function addEnemies() {
+        addEnemy();
         addEnemy();
         addEnemy();
         addEnemy();
@@ -144,57 +149,57 @@ export class App {
             }
 
             const hasBrickOnTheRight = bricks.find(
-              (brick) => hasCollisions(enemy.container, brick.container).right,
+              (brick) => hasCollisions(enemy.container, brick.container, cellSize).right,
             );
 
             const hasOtherEnemyOnTheRight = enemies.find((otherEnemy) => {
               if (otherEnemy.container.uid === enemy.container.uid) {
                 return false;
               }
-              return hasCollisions(enemy.container, otherEnemy.container).right;
+              return hasCollisions(enemy.container, otherEnemy.container, cellSize).right;
             });
 
             const hasBrickOnTheLeft = bricks.find(
-              (brick) => hasCollisions(enemy.container, brick.container).left,
+              (brick) => hasCollisions(enemy.container, brick.container, cellSize).left,
             );
 
             const hasOtherEnemyOnTheLeft = enemies.find((otherEnemy) => {
               if (otherEnemy.container.uid === enemy.container.uid) {
                 return false;
               }
-              return hasCollisions(enemy.container, otherEnemy.container).left;
+              return hasCollisions(enemy.container, otherEnemy.container, cellSize).left;
             });
 
             const hasBrickAtBottom = bricks.find(
-              (brick) => hasCollisions(enemy.container, brick.container).bottom,
+              (brick) => hasCollisions(enemy.container, brick.container, cellSize).bottom,
             );
 
             const hasOtherEnemyAtBottom = enemies.find((otherEnemy) => {
               if (otherEnemy.container.uid === enemy.container.uid) {
                 return false;
               }
-              return hasCollisions(enemy.container, otherEnemy.container).bottom;
+              return hasCollisions(enemy.container, otherEnemy.container, cellSize).bottom;
             });
 
             const hasBrickAtTop = bricks.find(
-              (brick) => hasCollisions(enemy.container, brick.container).top,
+              (brick) => hasCollisions(enemy.container, brick.container, cellSize).top,
             );
 
             const hasOtherEnemyAtTop = enemies.find((otherEnemy) => {
               if (otherEnemy.container.uid === enemy.container.uid) {
                 return false;
               }
-              return hasCollisions(enemy.container, otherEnemy.container).top;
+              return hasCollisions(enemy.container, otherEnemy.container, cellSize).top;
             });
 
             const hasMainTankAtTop =
-              mainTank && hasCollisions(enemy.container, mainTank.container).top;
+              mainTank && hasCollisions(enemy.container, mainTank.container, cellSize).top;
             const hasMainTankAtBottom =
-              mainTank && hasCollisions(enemy.container, mainTank.container).bottom;
+              mainTank && hasCollisions(enemy.container, mainTank.container, cellSize).bottom;
             const hasMainTankOnTheLeft =
-              mainTank && hasCollisions(enemy.container, mainTank.container).left;
+              mainTank && hasCollisions(enemy.container, mainTank.container, cellSize).left;
             const hasMainTankOnTheRight =
-              mainTank && hasCollisions(enemy.container, mainTank.container).right;
+              mainTank && hasCollisions(enemy.container, mainTank.container, cellSize).right;
 
             if (enemy.willBeRotated) {
               return;
@@ -316,6 +321,16 @@ export class App {
           app.stage.addChild(brick.container);
           bricks.push(brick);
         });
+      }
+
+      function generatePerepugPosition() {
+        perepug = new Perepug(cellSize, perepugTexture);
+
+        perepug.container.x =
+          TANK_SIZE_CELLS * 7 * cellSize + scene.container.x - perepug.container.width + 1;
+        perepug.container.y = scene.container.y + scene.container.height - perepug.container.height;
+
+        app.stage.addChild(perepug.container);
       }
 
       function updateTankDirection(state: ControllerState) {
@@ -515,21 +530,29 @@ export class App {
 
         let hasMainTankCollision: boolean = false;
         let hasMainTankBulletCollision: boolean = false;
+        let hasPerepugCollision: boolean = false;
 
         if (bullet) {
           hasMainTankCollision =
             !!mainTank &&
-            (hasCollisions(bullet.container, mainTank.container).left ||
-              hasCollisions(bullet.container, mainTank.container).right ||
-              hasCollisions(bullet.container, mainTank.container).top ||
-              hasCollisions(bullet.container, mainTank.container).bottom);
+            (hasCollisions(bullet.container, mainTank.container, cellSize).left ||
+              hasCollisions(bullet.container, mainTank.container, cellSize).right ||
+              hasCollisions(bullet.container, mainTank.container, cellSize).top ||
+              hasCollisions(bullet.container, mainTank.container, cellSize).bottom);
 
           hasMainTankBulletCollision =
             !!mainBullet &&
-            (hasCollisions(bullet.container, mainBullet.container).left ||
-              hasCollisions(bullet.container, mainBullet.container).right ||
-              hasCollisions(bullet.container, mainBullet.container).top ||
-              hasCollisions(bullet.container, mainBullet.container).bottom);
+            (hasCollisions(bullet.container, mainBullet.container, cellSize).left ||
+              hasCollisions(bullet.container, mainBullet.container, cellSize).right ||
+              hasCollisions(bullet.container, mainBullet.container, cellSize).top ||
+              hasCollisions(bullet.container, mainBullet.container, cellSize).bottom);
+
+          hasPerepugCollision =
+            !!perepug &&
+            (hasCollisions(bullet.container, perepug.container, cellSize).left ||
+              hasCollisions(bullet.container, perepug.container, cellSize).right ||
+              hasCollisions(bullet.container, perepug.container, cellSize).top ||
+              hasCollisions(bullet.container, perepug.container, cellSize).bottom);
         }
 
         if (hasMainTankBulletCollision) {
@@ -567,6 +590,12 @@ export class App {
           }
 
           removeLocalEnemyBullet(enemy, bullet);
+        }
+
+        if (hasPerepugCollision && perepug) {
+          removeLocalEnemyBullet(enemy, bullet);
+          perepug.container.removeFromParent();
+          perepug = null;
         }
       }
 
@@ -617,35 +646,35 @@ export class App {
           scene.container.y + scene.container.height - mainTank.container.height - moveStep;
 
         const hasBrickOnTheRight = bricks.find((brick) => {
-          return !!mainTank && hasCollisions(mainTank.container, brick.container).right;
+          return !!mainTank && hasCollisions(mainTank.container, brick.container, cellSize).right;
         });
 
         const hasTankOnTheRight = enemies.find((enemy) => {
-          return !!mainTank && hasCollisions(mainTank.container, enemy.container).right;
+          return !!mainTank && hasCollisions(mainTank.container, enemy.container, cellSize).right;
         });
 
         const hasBrickOnTheLeft = bricks.find((brick) => {
-          return !!mainTank && hasCollisions(mainTank.container, brick.container).left;
+          return !!mainTank && hasCollisions(mainTank.container, brick.container, cellSize).left;
         });
 
         const hasTankOnTheLeft = enemies.find((enemy) => {
-          return !!mainTank && hasCollisions(mainTank.container, enemy.container).left;
+          return !!mainTank && hasCollisions(mainTank.container, enemy.container, cellSize).left;
         });
 
         const hasBrickAtBottom = bricks.find((brick) => {
-          return !!mainTank && hasCollisions(mainTank.container, brick.container).bottom;
+          return !!mainTank && hasCollisions(mainTank.container, brick.container, cellSize).bottom;
         });
 
         const hasTankAtBottom = enemies.find((enemy) => {
-          return !!mainTank && hasCollisions(mainTank.container, enemy.container).bottom;
+          return !!mainTank && hasCollisions(mainTank.container, enemy.container, cellSize).bottom;
         });
 
         const hasBrickAtTop = bricks.find((brick) => {
-          return !!mainTank && hasCollisions(mainTank.container, brick.container).top;
+          return !!mainTank && hasCollisions(mainTank.container, brick.container, cellSize).top;
         });
 
         const hasTankAtTop = enemies.find((enemy) => {
-          return !!mainTank && hasCollisions(mainTank.container, enemy.container).top;
+          return !!mainTank && hasCollisions(mainTank.container, enemy.container, cellSize).top;
         });
 
         if (state.right.pressed) {
@@ -683,11 +712,23 @@ export class App {
         });
       }
 
+      function checkIfGameEnded() {
+        if (!perepug || stats.lives === 0) {
+          isGameEnded = true;
+          alert('HAAAAAAAAAAAAAAAAAAA POPUSK !!! ' + !perepug ? 'PEREPUG POMER' : 'NEMA JYTTIV');
+        }
+      }
+
       generateBricks();
       addMainTank();
       addEnemies();
+      generatePerepugPosition();
 
       app.ticker.add((time) => {
+        if (isGameEnded) {
+          return;
+        }
+
         const state = this.controller.stateExposed();
 
         function moveTick() {
@@ -706,6 +747,7 @@ export class App {
         shootFromEnemies();
         moveExplosionParticles();
         removeExplosion();
+        checkIfGameEnded();
       });
     })();
   }

@@ -29,6 +29,10 @@ export class Stats {
   private livesContainer: Graphics;
   private heart: Texture;
 
+  public get lives(): number {
+    return this.state.lives;
+  }
+
   constructor(app: Application, svgHeart: Texture) {
     this.rect = new Graphics().rect(0, 0, 100, 100).fill({ color: 'red' });
     this.livesContainer = new Graphics()
