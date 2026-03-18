@@ -21,6 +21,9 @@ export function generateBricksHelper(
   const palkaRightRightCenterXStart = 48;
   const baseXStart = 22;
   const baseRightXStart = 28;
+  const middleSquareXStart = 24;
+  const leftStoneXStart = 0;
+  const rightStoneXStart = 48;
 
   const palkaWidthBlocksAmount = 4;
   const palkaTopYStart = 4;
@@ -42,10 +45,17 @@ export function generateBricksHelper(
   const palkaLeftLeftHeightBlocksAmount = 2;
   const baseTopYStart = 46;
   const baseLeftYStart = 48;
+  const middleSquareYStart = 12;
+  const leftStoneYStart = 28;
+  const rightStoneYStart = 28;
   const baseTopWidthBlocksAmount = 8;
   const baseTopHeightBlocksAmount = 2;
   const baseLeftWidthBlocksAmount = 2;
   const baseLeftHeightBlocksAmount = 4;
+  const leftStoneWidthBlocksAmount = 4;
+  const rightStoneWidthBlocksAmount = 4;
+  const leftStoneHeightBlocksAmount = 2;
+  const rightStoneHeightBlocksAmount = 2;
 
   const leftCellGap = 1;
 
@@ -323,6 +333,36 @@ export function generateBricksHelper(
   for (let i = baseRightXStart; i < baseRightXStart + baseLeftWidthBlocksAmount; i++) {
     for (let j = baseLeftYStart; j < baseLeftYStart + baseLeftHeightBlocksAmount; j++) {
       const brick = new Brick(cellSize);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
+      bricks.push(brick);
+    }
+  }
+
+  // middle square
+  for (let i = middleSquareXStart; i < middleSquareXStart + palkaWidthBlocksAmount; i++) {
+    for (let j = middleSquareYStart; j < middleSquareYStart + palkaWidthBlocksAmount; j++) {
+      const brick = new Brick(cellSize, false);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
+      bricks.push(brick);
+    }
+  }
+
+  // left stone part
+  for (let i = leftStoneXStart; i < leftStoneXStart + leftStoneWidthBlocksAmount; i++) {
+    for (let j = leftStoneYStart; j < leftStoneYStart + leftStoneHeightBlocksAmount; j++) {
+      const brick = new Brick(cellSize, false);
+      brick.setX(sceneX + (cellSize * i + leftCellGap));
+      brick.setY(sceneY + (cellSize * j + leftCellGap));
+      bricks.push(brick);
+    }
+  }
+
+  // right stone part
+  for (let i = rightStoneXStart; i < rightStoneXStart + rightStoneWidthBlocksAmount; i++) {
+    for (let j = rightStoneYStart; j < rightStoneYStart + rightStoneHeightBlocksAmount; j++) {
+      const brick = new Brick(cellSize, false);
       brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);

@@ -70,6 +70,7 @@ export class App {
       let mainTank: Tank | null = null;
       let mainBullet: null | Bullet = null;
       let perepug: Perepug | null = null;
+      let isPerepugDead: boolean = false;
       let previouslyGeneratedEnemyXPosition = 0;
 
       const enemies: Tank[] = [];
@@ -471,6 +472,9 @@ export class App {
 
         if (hasCollisionsBricks.length || isOutOfScene || hasEnemiesCollision.length) {
           hasCollisionsBricks.forEach((brick) => {
+            if (!brick.canBeDestroyed) {
+              return;
+            }
             brick.container.removeFromParent();
             const index = bricks.findIndex(
               (allBrick) => allBrick.container.uid === brick.container.uid,
@@ -566,6 +570,9 @@ export class App {
 
         if (hasCollisionsBricks.length || isOutOfScene || hasMainTankCollision) {
           hasCollisionsBricks.forEach((brick) => {
+            if (!brick.canBeDestroyed) {
+              return;
+            }
             brick.container.removeFromParent();
             const index = bricks.findIndex(
               (allBrick) => allBrick.container.uid === brick.container.uid,
@@ -594,8 +601,7 @@ export class App {
 
         if (hasPerepugCollision && perepug) {
           removeLocalEnemyBullet(enemy, bullet);
-          perepug.container.removeFromParent();
-          perepug = null;
+          isPerepugDead = true;
         }
       }
 
@@ -713,9 +719,14 @@ export class App {
       }
 
       function checkIfGameEnded() {
-        if (!perepug || stats.lives === 0) {
+        if (isPerepugDead || stats.lives === 0) {
           isGameEnded = true;
-          alert('HAAAAAAAAAAAAAAAAAAA POPUSK !!! ' + !perepug ? 'PEREPUG POMER' : 'NEMA JYTTIV');
+          alert(
+            'HAAAAAAAAAAAAAAAAAAA POPUSK !!! ' + isPerepugDead ? 'PEREPUG POMER' : 'NEMA JYTTIV',
+          );
+          if (isPerepugDead) {
+            perepug?.scaleConstantly();
+          }
         }
       }
 

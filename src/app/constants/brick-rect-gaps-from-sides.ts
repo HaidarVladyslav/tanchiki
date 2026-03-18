@@ -1,0 +1,1 @@
+export const BRICK_RECT_GAPS_FROM_SIDES = 2;
