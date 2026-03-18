@@ -1,7 +1,9 @@
-import { ColorSource, Container, Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { TANK_SIZE_CELLS } from './constants/tank-size-cells';
 import { Direction } from './types/direction';
 import { Bullet } from './bullet';
+import { CharacterColor } from './types/character-color';
+import { BULLET_COLOR } from './constants/bullet-color';
 
 export class Tank {
   public container: Container;
@@ -16,15 +18,19 @@ export class Tank {
   public willHaveBullet: boolean = false;
   public bullet: Bullet | null = null;
   public canBeKilled: boolean = true;
+  public colorName: string;
 
-  constructor(cellSize: number, color: ColorSource = 0x00ff00) {
+  constructor(cellSize: number, color: CharacterColor) {
     this.container = new Container();
     this.tankSize = cellSize * TANK_SIZE_CELLS;
+    this.colorName = color.name;
     const rect = new Graphics()
       .rect(0, 0, this.tankSize - 1, this.tankSize - 1)
-      .fill({ color })
+      .fill({ color: color.color })
       .stroke({ color: 0x05faf7 });
-    this.front = new Graphics().rect(0, 0, rect.width / 6, rect.width / 6).fill({ color: 'red' });
+    this.front = new Graphics()
+      .rect(0, 0, rect.width / 6, rect.width / 6)
+      .fill({ color: BULLET_COLOR });
 
     rect.addChild(this.front);
     this.container.addChild(rect);

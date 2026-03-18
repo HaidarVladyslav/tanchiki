@@ -1,4 +1,5 @@
 import { Application, Container, Graphics } from 'pixi.js';
+import { BULLET_COLOR } from './constants/bullet-color';
 
 const AMOUNT = 6;
 const SIZE = 4;
@@ -13,7 +14,7 @@ export class Explosion {
 
   constructor(app: Application, x: number, y: number) {
     for (let i = 0; i < AMOUNT; i++) {
-      const particle = new Graphics().roundRect(0, 0, SIZE, SIZE, 99).fill({ color: 'gold' });
+      const particle = new Graphics().roundRect(0, 0, SIZE, SIZE, 99).fill({ color: BULLET_COLOR });
       this.particles.push(particle);
       this.container.addChild(particle);
     }

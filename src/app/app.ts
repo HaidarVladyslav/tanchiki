@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Application } from 'pixi.js';
+import { Application, Assets } from 'pixi.js';
 import { Controller } from './controller';
 import { Scene } from './scene';
 import { Tank } from './tank';
@@ -20,6 +20,8 @@ import { BULLET_REAPPEAR_SPEED, BULLET_SPEED } from './constants/bullet-speed';
 import { MILLISECONDS_TO_BE_UNKILLABLE } from './constants/time-to-be-unkillable';
 import { MILLISECONDS_TIME_TANK_REAPPEARANCE } from './constants/time-tank-reappeareance';
 import { Explosion } from './explosion';
+import { MAIN_TANK_SETTINGS } from './constants/main-tank-settings';
+import { Stats } from './stats';
 
 @Component({
   selector: 'app-root',
@@ -43,6 +45,8 @@ export class App {
       // Append the application canvas to the document body
       document.body.appendChild(app.canvas);
 
+      const svgHeart = await Assets.load('heart.svg');
+
       const width = app.screen.width;
       const height = app.screen.height;
       const sceneWidth = Math.max(width / 2, 400);
@@ -51,7 +55,6 @@ export class App {
       const cellSize = scene.cellSize;
       const cellsAmount = scene.cellsAmount;
       const moveStep = cellSize / 2;
-      const enemiesXMultiplier = 16;
 
       const countToUpdate = COUNT_TO_UPDATE_LOCATION;
       const countToUpdateBullet = COUNT_TO_UPDATE_BULLET;
@@ -63,13 +66,16 @@ export class App {
 
       let mainTank: Tank | null = null;
       let mainBullet: null | Bullet = null;
+      let previouslyGeneratedEnemyXPosition = 0;
 
       const enemies: Tank[] = [];
 
       app.stage.addChild(scene.container);
 
+      const stats = new Stats(app, svgHeart);
+
       function addMainTank() {
-        mainTank = new Tank(cellSize);
+        mainTank = new Tank(cellSize, MAIN_TANK_SETTINGS.color);
         app.stage.addChild(mainTank.container);
 
         mainTank.setX(scene.container.x + 16 * cellSize);
@@ -84,17 +90,24 @@ export class App {
       }
 
       function addEnemies() {
-        addEnemy(enemies.length * enemiesXMultiplier);
-        addEnemy(enemies.length * enemiesXMultiplier);
-        addEnemy(enemies.length * enemiesXMultiplier);
+        addEnemy();
+        addEnemy();
+        addEnemy();
       }
 
-      function addEnemy(index: number) {
+      function addEnemy() {
         const enemy = new Tank(cellSize, getRandomColor());
         enemies.push(enemy);
         app.stage.addChild(enemy.container);
-        enemy.setX(scene.container.x + cellSize * index);
+        enemy.setX(scene.container.x + cellSize * previouslyGeneratedEnemyXPosition);
         enemy.setY(scene.container.y);
+        const newX = Math.floor(Math.random() * cellsAmount);
+        previouslyGeneratedEnemyXPosition = Math.min(
+          Math.abs(previouslyGeneratedEnemyXPosition - newX) <= TANK_SIZE_CELLS
+            ? newX + TANK_SIZE_CELLS
+            : newX,
+          cellsAmount - TANK_SIZE_CELLS,
+        );
         enemy.rotateFront(getRandomDirection());
       }
 
@@ -411,18 +424,17 @@ export class App {
           }
 
           const xCollision =
-            (bullet.container.x >= brick.container.x &&
-              bullet.container.x <= brick.container.x + brick.container.width) ||
             (bullet.container.x + bullet.container.width >= brick.container.x &&
-              bullet.container.x + bullet.container.width <=
-                brick.container.x + brick.container.width);
+              bullet.container.x <= brick.container.x + brick.container.width) || // to right
+            (bullet.container.x >= brick.container.x && // to left
+              bullet.container.x <= brick.container.x + brick.container.width);
 
           const yCollision =
-            (bullet.container.y >= brick.container.y &&
-              bullet.container.y <= brick.container.y + brick.container.height) ||
-            (bullet.container.y + bullet.container.height >= brick.container.y &&
+            (bullet.container.y + bullet.container.height >= brick.container.y && // to bottom
               bullet.container.y + bullet.container.height <=
-                brick.container.y + brick.container.height);
+                brick.container.y + brick.container.height) ||
+            (bullet.container.y >= brick.container.y && // to top
+              bullet.container.y <= brick.container.y + brick.container.height);
 
           return xCollision && yCollision;
         });
@@ -463,7 +475,8 @@ export class App {
 
             removeLocalEnemyBullet(enemy, enemy.bullet);
             enemy.container.removeFromParent();
-            addEnemy(Math.min(enemies.length * enemiesXMultiplier, cellsAmount - TANK_SIZE_CELLS));
+            stats.updateEnemiesKilled(enemy.colorName);
+            addEnemy();
           });
           removeBullet(bullet);
         }
@@ -543,6 +556,7 @@ export class App {
             removeBullet(mainTank.bullet);
             mainTank.container.removeFromParent();
             mainTank = null;
+            stats.reduceLives();
             setTimeout(() => {
               addMainTank();
             }, MILLISECONDS_TIME_TANK_REAPPEARANCE);
@@ -557,45 +571,35 @@ export class App {
       }
 
       function removeBullet(localBullet: Bullet | null) {
-        console.log('REMOVE BULLET');
-        // add sparkle effect
-
         if (mainBullet) {
           const explosion = new Explosion(app, mainBullet.container.x, mainBullet.container.y);
           explosions.push(explosion);
         }
-        setTimeout(() => {
-          if (mainBullet) {
-            mainBullet.container.removeFromParent();
-            mainBullet = null;
-          }
-          if (localBullet) {
-            localBullet.container.removeFromParent();
-            localBullet = null;
-          }
-        }, 50);
+        if (mainBullet) {
+          mainBullet.container.removeFromParent();
+          mainBullet = null;
+        }
+        if (localBullet) {
+          localBullet.container.removeFromParent();
+          localBullet = null;
+        }
       }
 
       function removeLocalEnemyBullet(enemy: Tank, localBullet: Bullet | null) {
-        console.log('REMOVE BULLET');
-        // add sparkle effect
-
         if (enemy.bullet) {
           const explosion = new Explosion(app, enemy.bullet.container.x, enemy.bullet.container.y);
           explosions.push(explosion);
         }
-        setTimeout(() => {
-          if (enemy.bullet) {
-            enemy.bullet.container.removeFromParent();
+        if (enemy.bullet) {
+          enemy.bullet.container.removeFromParent();
+          enemy.setBullet(null);
+        }
+        if (localBullet) {
+          localBullet.container.removeFromParent();
+          if (enemy && enemy.bullet) {
             enemy.setBullet(null);
           }
-          if (localBullet) {
-            localBullet.container.removeFromParent();
-            if (enemy && enemy.bullet) {
-              enemy.setBullet(null);
-            }
-          }
-        }, 50);
+        }
       }
 
       function updateTankLocation(state: ControllerState) {
