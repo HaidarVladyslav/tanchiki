@@ -3,17 +3,27 @@ import {
   DEFAULT_BRICK_COLOR,
   DEFAULT_BRICK_BORDER_COLOR,
   STONE_BRICK_COLOR,
+  GROSS_BRICK_COLOR,
 } from './constants/brick-colors';
 import { BRICK_RECT_GAPS_FROM_SIDES } from './constants/brick-rect-gaps-from-sides';
+import { GROSS_Z_INDEX } from './constants/gross-z-index';
 
 export class Brick {
   private rect: Graphics = new Graphics();
   private cellSize: number;
   public container = new Container();
   public canBeDestroyed: boolean;
+  public canBePassedThrough: boolean;
 
-  constructor(cellSize: number, canBeDestroyed: boolean = true) {
-    this.canBeDestroyed = canBeDestroyed;
+  constructor(
+    cellSize: number,
+    options: {
+      canBeDestroyed: boolean;
+      canBePassedThrough: boolean;
+    } = { canBeDestroyed: true, canBePassedThrough: false },
+  ) {
+    this.canBeDestroyed = options.canBeDestroyed;
+    this.canBePassedThrough = options.canBePassedThrough;
     this.cellSize = cellSize;
     this.generateRect();
     this.container.addChild(this.rect);
@@ -28,7 +38,11 @@ export class Brick {
   }
 
   private generateRect(): void {
-    const color = this.canBeDestroyed ? DEFAULT_BRICK_COLOR : STONE_BRICK_COLOR;
+    const color = this.canBePassedThrough
+      ? GROSS_BRICK_COLOR
+      : this.canBeDestroyed
+        ? DEFAULT_BRICK_COLOR
+        : STONE_BRICK_COLOR;
     this.rect = new Graphics()
       .rect(
         0,
@@ -38,5 +52,9 @@ export class Brick {
       )
       .fill({ color })
       .stroke({ color: DEFAULT_BRICK_BORDER_COLOR });
+
+    if (this.canBePassedThrough) {
+      this.container.zIndex = GROSS_Z_INDEX;
+    }
   }
 }

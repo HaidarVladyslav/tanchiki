@@ -342,7 +342,7 @@ export function generateBricksHelper(
   // middle square
   for (let i = middleSquareXStart; i < middleSquareXStart + palkaWidthBlocksAmount; i++) {
     for (let j = middleSquareYStart; j < middleSquareYStart + palkaWidthBlocksAmount; j++) {
-      const brick = new Brick(cellSize, false);
+      const brick = new Brick(cellSize, { canBeDestroyed: false, canBePassedThrough: false });
       brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
@@ -352,7 +352,7 @@ export function generateBricksHelper(
   // left stone part
   for (let i = leftStoneXStart; i < leftStoneXStart + leftStoneWidthBlocksAmount; i++) {
     for (let j = leftStoneYStart; j < leftStoneYStart + leftStoneHeightBlocksAmount; j++) {
-      const brick = new Brick(cellSize, false);
+      const brick = new Brick(cellSize, { canBeDestroyed: false, canBePassedThrough: false });
       brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);
@@ -362,7 +362,7 @@ export function generateBricksHelper(
   // right stone part
   for (let i = rightStoneXStart; i < rightStoneXStart + rightStoneWidthBlocksAmount; i++) {
     for (let j = rightStoneYStart; j < rightStoneYStart + rightStoneHeightBlocksAmount; j++) {
-      const brick = new Brick(cellSize, false);
+      const brick = new Brick(cellSize, { canBeDestroyed: false, canBePassedThrough: false });
       brick.setX(sceneX + (cellSize * i + leftCellGap));
       brick.setY(sceneY + (cellSize * j + leftCellGap));
       bricks.push(brick);

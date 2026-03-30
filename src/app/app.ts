@@ -150,7 +150,9 @@ export class App {
             }
 
             const hasBrickOnTheRight = bricks.find(
-              (brick) => hasCollisions(enemy.container, brick.container, cellSize).right,
+              (brick) =>
+                !brick.canBePassedThrough &&
+                hasCollisions(enemy.container, brick.container, cellSize).right,
             );
 
             const hasOtherEnemyOnTheRight = enemies.find((otherEnemy) => {
@@ -161,7 +163,9 @@ export class App {
             });
 
             const hasBrickOnTheLeft = bricks.find(
-              (brick) => hasCollisions(enemy.container, brick.container, cellSize).left,
+              (brick) =>
+                !brick.canBePassedThrough &&
+                hasCollisions(enemy.container, brick.container, cellSize).left,
             );
 
             const hasOtherEnemyOnTheLeft = enemies.find((otherEnemy) => {
@@ -172,7 +176,9 @@ export class App {
             });
 
             const hasBrickAtBottom = bricks.find(
-              (brick) => hasCollisions(enemy.container, brick.container, cellSize).bottom,
+              (brick) =>
+                !brick.canBePassedThrough &&
+                hasCollisions(enemy.container, brick.container, cellSize).bottom,
             );
 
             const hasOtherEnemyAtBottom = enemies.find((otherEnemy) => {
@@ -183,7 +189,9 @@ export class App {
             });
 
             const hasBrickAtTop = bricks.find(
-              (brick) => hasCollisions(enemy.container, brick.container, cellSize).top,
+              (brick) =>
+                !brick.canBePassedThrough &&
+                hasCollisions(enemy.container, brick.container, cellSize).top,
             );
 
             const hasOtherEnemyAtTop = enemies.find((otherEnemy) => {
@@ -439,6 +447,10 @@ export class App {
             return false;
           }
 
+          if (brick.canBePassedThrough) {
+            return;
+          }
+
           const xCollision =
             (bullet.container.x + bullet.container.width >= brick.container.x &&
               bullet.container.x <= brick.container.x + brick.container.width) || // to right
@@ -513,6 +525,10 @@ export class App {
         const hasCollisionsBricks = bricks.filter((brick) => {
           if (!bullet) {
             return false;
+          }
+
+          if (brick.canBePassedThrough) {
+            return;
           }
 
           const xCollision =
@@ -652,7 +668,11 @@ export class App {
           scene.container.y + scene.container.height - mainTank.container.height - moveStep;
 
         const hasBrickOnTheRight = bricks.find((brick) => {
-          return !!mainTank && hasCollisions(mainTank.container, brick.container, cellSize).right;
+          return (
+            !!mainTank &&
+            !brick.canBePassedThrough &&
+            hasCollisions(mainTank.container, brick.container, cellSize).right
+          );
         });
 
         const hasTankOnTheRight = enemies.find((enemy) => {
@@ -660,7 +680,11 @@ export class App {
         });
 
         const hasBrickOnTheLeft = bricks.find((brick) => {
-          return !!mainTank && hasCollisions(mainTank.container, brick.container, cellSize).left;
+          return (
+            !!mainTank &&
+            !brick.canBePassedThrough &&
+            hasCollisions(mainTank.container, brick.container, cellSize).left
+          );
         });
 
         const hasTankOnTheLeft = enemies.find((enemy) => {
@@ -668,7 +692,11 @@ export class App {
         });
 
         const hasBrickAtBottom = bricks.find((brick) => {
-          return !!mainTank && hasCollisions(mainTank.container, brick.container, cellSize).bottom;
+          return (
+            !!mainTank &&
+            !brick.canBePassedThrough &&
+            hasCollisions(mainTank.container, brick.container, cellSize).bottom
+          );
         });
 
         const hasTankAtBottom = enemies.find((enemy) => {
@@ -676,7 +704,11 @@ export class App {
         });
 
         const hasBrickAtTop = bricks.find((brick) => {
-          return !!mainTank && hasCollisions(mainTank.container, brick.container, cellSize).top;
+          return (
+            !!mainTank &&
+            !brick.canBePassedThrough &&
+            hasCollisions(mainTank.container, brick.container, cellSize).top
+          );
         });
 
         const hasTankAtTop = enemies.find((enemy) => {
