@@ -9,7 +9,8 @@ import {
   COUNT_TO_UPDATE_BULLET,
   COUNT_TO_UPDATE_LOCATION,
 } from './constants/count-to-update-location';
-import { generateBricksHelper } from './helpers/generate-bricks';
+import { generateLevel1 } from './helpers/generate-level-1';
+import { generateLevel2 } from './helpers/generate-level-2';
 import { hasCollisions } from './helpers/has-collisions';
 import { Bullet } from './bullet';
 import { getRandomDirection } from './helpers/get-random-direction';
@@ -23,6 +24,7 @@ import { Explosion } from './explosion';
 import { MAIN_TANK_SETTINGS } from './constants/main-tank-settings';
 import { Stats } from './stats';
 import { Perepug } from './perepug';
+import { generateLevel4 } from './helpers/generate-level-4';
 
 @Component({
   selector: 'app-root',
@@ -320,12 +322,7 @@ export class App {
       }
 
       function generateBricks() {
-        const generatedBricks = generateBricksHelper(
-          scene.container.x,
-          scene.container.y,
-          cellSize,
-          cellsAmount,
-        );
+        const generatedBricks = generateLevel4(scene.container.x, scene.container.y, cellSize);
         generatedBricks.forEach((brick) => {
           app.stage.addChild(brick.container);
           bricks.push(brick);
@@ -447,7 +444,7 @@ export class App {
             return false;
           }
 
-          if (brick.canBePassedThrough) {
+          if (brick.canBePassedThrough || brick.canShootThrough) {
             return;
           }
 
@@ -527,7 +524,7 @@ export class App {
             return false;
           }
 
-          if (brick.canBePassedThrough) {
+          if (brick.canBePassedThrough || brick.canShootThrough) {
             return;
           }
 

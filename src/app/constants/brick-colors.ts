@@ -2,3 +2,4 @@ export const DEFAULT_BRICK_COLOR = 0xff0000;
 export const DEFAULT_BRICK_BORDER_COLOR = 0x008000;
 export const STONE_BRICK_COLOR = 0x888c8d;
 export const GROSS_BRICK_COLOR = 0x95ef23;
+export const WATER_BRICK_COLOR = 0x74ccf4;
