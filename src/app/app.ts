@@ -722,9 +722,10 @@ export class App {
         if (isPerepugDead || stats.lives === 0) {
           isGameEnded = true;
           alert(
-            'HAAAAAAAAAAAAAAAAAAA POPUSK !!! ' + isPerepugDead ? 'PEREPUG POMER' : 'NEMA JYTTIV',
+            'HAAAAAAAAAAAAAAAAAAA POPUSK !!! ' +
+              (stats.lives !== 0 ? 'PEREPUG POMER' : 'NEMA JYTTIV'),
           );
-          if (isPerepugDead) {
+          if (stats.lives !== 0) {
             perepug?.scaleConstantly();
           }
         }

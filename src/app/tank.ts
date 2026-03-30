@@ -1,4 +1,4 @@
-import { Container, Graphics } from 'pixi.js';
+import { ColorSource, Container, Graphics } from 'pixi.js';
 import { TANK_SIZE_CELLS } from './constants/tank-size-cells';
 import { Direction } from './types/direction';
 import { Bullet } from './bullet';
@@ -12,6 +12,8 @@ export class Tank {
   private x: number = 0;
   private y: number = 0;
   private tankSize: number;
+  private rect: Graphics = new Graphics();
+  private color: ColorSource;
 
   public direction: Direction = 'top';
   public willBeRotated: boolean = false;
@@ -24,16 +26,14 @@ export class Tank {
     this.container = new Container();
     this.tankSize = cellSize * TANK_SIZE_CELLS;
     this.colorName = color.name;
-    const rect = new Graphics()
-      .rect(0, 0, this.tankSize - 1, this.tankSize - 1)
-      .fill({ color: color.color })
-      .stroke({ color: 0x05faf7 });
+    this.color = color.color;
+    this.setRect();
     this.front = new Graphics()
-      .rect(0, 0, rect.width / 6, rect.width / 6)
+      .rect(0, 0, this.rect.width / 6, this.rect.width / 6)
       .fill({ color: BULLET_COLOR });
 
-    rect.addChild(this.front);
-    this.container.addChild(rect);
+    this.rect.addChild(this.front);
+    this.container.addChild(this.rect);
 
     this.rotateFront(this.direction);
   }
@@ -85,5 +85,13 @@ export class Tank {
 
   public setCanBeKilled(value: boolean): void {
     this.canBeKilled = value;
+    this.rect.alpha = value ? 1 : 0.5;
+  }
+
+  private setRect(): void {
+    this.rect = new Graphics()
+      .rect(0, 0, this.tankSize - 1, this.tankSize - 1)
+      .fill({ color: this.color })
+      .stroke({ color: 0x05faf7 });
   }
 }
