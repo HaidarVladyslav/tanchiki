@@ -70,6 +70,9 @@ export class App {
       const bricks: Brick[] = [];
       const explosions: Explosion[] = [];
 
+      const levels = [generateLevel1, generateLevel2, generateLevel3, generateLevel4];
+      let currentLevelIndex = 0;
+
       let mainTank: Tank | null = null;
       let mainBullet: null | Bullet = null;
       let perepug: Perepug | null = null;
@@ -83,6 +86,10 @@ export class App {
       const stats = new Stats(app, svgHeart);
 
       function addMainTank() {
+        if (mainTank) {
+          mainTank.container.removeFromParent();
+        }
+
         mainTank = new Tank(cellSize, MAIN_TANK_SETTINGS.color);
         app.stage.addChild(mainTank.container);
 
@@ -98,6 +105,11 @@ export class App {
       }
 
       function addEnemies() {
+        if (enemies.length) {
+          enemies.forEach((enemy) => enemy.container.removeFromParent());
+          enemies.length = 0;
+        }
+
         addEnemy();
         addEnemy();
         addEnemy();
@@ -322,12 +334,23 @@ export class App {
         });
       }
 
-      function generateBricks() {
-        const generatedBricks = generateLevel3(scene.container.x, scene.container.y, cellSize);
-        generatedBricks.forEach((brick) => {
-          app.stage.addChild(brick.container);
-          bricks.push(brick);
+      function generateNextLevel() {
+        bricks.forEach((brick) => {
+          brick.container.removeFromParent();
+          brick.container.destroy();
         });
+        bricks.length = 0;
+
+        levels[currentLevelIndex](scene.container.x, scene.container.y, cellSize).forEach(
+          (brick) => {
+            app.stage.addChild(brick.container);
+            bricks.push(brick);
+          },
+        );
+        addMainTank();
+        addEnemies();
+
+        currentLevelIndex++;
       }
 
       function generatePerepugPosition() {
@@ -761,9 +784,7 @@ export class App {
         }
       }
 
-      generateBricks();
-      addMainTank();
-      addEnemies();
+      generateNextLevel();
       generatePerepugPosition();
 
       app.ticker.add((time) => {
