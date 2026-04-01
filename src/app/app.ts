@@ -25,6 +25,7 @@ import { MAIN_TANK_SETTINGS } from './constants/main-tank-settings';
 import { Stats } from './stats';
 import { Perepug } from './perepug';
 import { generateLevel4 } from './helpers/generate-level-4';
+import { generateLevel3 } from './helpers/generate-level-3';
 
 @Component({
   selector: 'app-root',
@@ -322,7 +323,7 @@ export class App {
       }
 
       function generateBricks() {
-        const generatedBricks = generateLevel4(scene.container.x, scene.container.y, cellSize);
+        const generatedBricks = generateLevel3(scene.container.x, scene.container.y, cellSize);
         generatedBricks.forEach((brick) => {
           app.stage.addChild(brick.container);
           bricks.push(brick);
